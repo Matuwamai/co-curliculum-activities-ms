@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+model Member {
+  id          Int         @id @default(autoincrement())
+  fullName    String
+  age         Int
+  admissionNo String      @unique
+  birthday    DateTime
+  class       String
+   profileImage String?   // Optional profile image
+  activities  MemberActivity[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Activity {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?
+  members     MemberActivity[]
+  createdAt   DateTime    @default(now())
+}
+
+model MemberActivity {
+  id        Int     @id @default(autoincrement())
+  memberId  Int
+  activityId Int
+  member   Member  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, activityId]) // Prevent duplicate entries
+}
