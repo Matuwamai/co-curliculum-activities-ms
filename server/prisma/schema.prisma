@@ -36,3 +36,9 @@ model MemberActivity {
 
   @@unique([memberId, activityId]) // Prevent duplicate entries
 }
+model Admin {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+}
+
