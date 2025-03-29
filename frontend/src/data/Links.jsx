@@ -1,4 +1,5 @@
 import {
+  CalendarCheck2,
   GraduationCap,
   LayoutDashboard,
   ScissorsLineDashed,
@@ -29,5 +30,11 @@ export const sideLinks = [
     url: "/trainers",
     iconClass: () => <ScissorsLineDashed />,
     title: "Trainers",
+  },
+  {
+    id: 4,
+    url: "/trainning-schedules",
+    iconClass: () => <CalendarCheck2 />,
+    title: "Schedules",
   },
 ];

@@ -8,6 +8,7 @@ import DashboardPage from './pages/DashboardPage'
 import ActivitiesPage from './pages/ActivitiesPage'
 import TrainersPage from './pages/TrainersPage'
 import StudentsPage from './pages/StudentsPage'
+import TrainningSchedulePage from './pages/TrainningSchedulePage'
 
 export default function App() {
   return (
@@ -20,7 +21,8 @@ export default function App() {
           <Route path='/dashboard' element={<DashboardPage />} />
           <Route path='/activities' element={<ActivitiesPage />} />
           <Route path='/trainers' element={<TrainersPage />} />
-          <Route path='/students' element={<StudentsPage/>} />
+          <Route path='/students' element={<StudentsPage />} />
+          <Route path='/trainning-schedules' element={<TrainningSchedulePage />} />
         </Route>
       </Routes>
     </Router>
