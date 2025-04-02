@@ -7,41 +7,90 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Activity {
-  id          Int              @id @default(autoincrement())
-  name        String           @unique
+  id          Int            @id @default(autoincrement())
+  name        String         @unique
   description String?
-  members     UserActivity[]
-  createdAt   DateTime         @default(now())
+  stduents     StudentActivity[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  trainerId   Int            @unique
+  trainer     Trainer        @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  schedule    Schedule[]
 
   @@index([id, name])
   @@map("activities")
 }
 
-model UserActivity {
+model StudentActivity {
   id         Int      @id @default(autoincrement())
-  memberId   Int
+  studentId   Int
   activityId Int
-  member     User   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  student     Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
   activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
 
-  @@unique([memberId, activityId])
+  @@unique([studentId, activityId])
   @@map("user_activities")
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  fullName  String
-  email     String   @unique
-  password  String
-  role      ROLE     @default(STUDENT )
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  activities UserActivity[]
+  id         Int            @id @default(autoincrement())
+  fullName   String
+  email      String         @unique
+  phoneNo    String         @unique
+  password   String?
+  role       ROLE           @default(STUDENT)
+  trainer    Trainer?
+  student    Student?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@index([id, email])
+  @@map("users")
+}
+
+model Trainer {
+  id           Int        @id @default(autoincrement())
+  nationalIdNo String     @unique
+  userId       Int        @unique
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activity     Activity[]
 
   @@index([id])
-  @@map("users")
+  @@map("trainers")
+}
+
+model Student {
+  id         Int    @id @default(autoincrement())
+  parentName String
+  userId     Int    @unique
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activity   StudentActivity[]
+
+  @@index([id])
+  @@map("students")
+}
+
+model Schedule {
+  id         Int      @id @default(autoincrement())
+  activityId Int
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  day        DAY
+  startTime  String
+  endTime    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([id])
+  @@map("schedules")
+}
+
+enum DAY {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
 }
 
 enum ROLE {
