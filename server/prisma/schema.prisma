@@ -6,39 +6,46 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
-model Member {
-  id          Int         @id @default(autoincrement())
-  fullName    String
-  age         Int
-  admissionNo String      @unique
-  birthday    DateTime
-  class       String
-   profileImage String?   // Optional profile image
-  activities  MemberActivity[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-}
+
 
 model Activity {
-  id          Int         @id @default(autoincrement())
-  name        String
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
   description String?
-  members     MemberActivity[]
-  createdAt   DateTime    @default(now())
+  members     UserActivity[]
+  createdAt   DateTime         @default(now())
+
+  @@index([id, name])
+  @@map("activities")
 }
 
-model MemberActivity {
-  id        Int     @id @default(autoincrement())
-  memberId  Int
+model UserActivity {
+  id         Int      @id @default(autoincrement())
+  memberId   Int
   activityId Int
-  member   Member  @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  member     User   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
 
-  @@unique([memberId, activityId]) // Prevent duplicate entries
-}
-model Admin {
-  id       Int    @id @default(autoincrement())
-  username String @unique
-  password String
+  @@unique([memberId, activityId])
+  @@map("user_activities")
 }
 
+model User {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  email     String   @unique
+  password  String
+  role      ROLE     @default(STUDENT )
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  activities UserActivity[]
+
+  @@index([id])
+  @@map("users")
+}
+
+enum ROLE {
+  ADMIN
+  TRAINER
+  STUDENT
+}

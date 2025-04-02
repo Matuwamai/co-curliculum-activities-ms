@@ -1,18 +1,18 @@
-const express = require('express');
-const {
+import express from "express";
+import {
   createActivity,
   getAllActivities,
   getActivityById,
   updateActivity,
   deleteActivity,
-} = require('../controllers/activities.js');
+} from "../controllers/activities.js";
 
 const router = express.Router();
 
-router.post('/', createActivity);
-router.get('/', getAllActivities);
-router.get('/:id', getActivityById);
-router.put('/:id', updateActivity);
-router.delete('/:id', deleteActivity);
+router.post("/", createActivity);
+router.get("/", getAllActivities);
+router.get("/:id", getActivityById);
+router.put("/:id", updateActivity);
+router.delete("/:id", deleteActivity);
 
-module.exports = router;
+export default router;

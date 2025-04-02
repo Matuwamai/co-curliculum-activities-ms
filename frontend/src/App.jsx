@@ -9,6 +9,10 @@ import ActivitiesPage from './pages/ActivitiesPage'
 import TrainersPage from './pages/TrainersPage'
 import StudentsPage from './pages/StudentsPage'
 import TrainningSchedulePage from './pages/TrainningSchedulePage'
+import NewTrainerPage from './pages/NewTrainerPage'
+import NewStudentPage from './pages/NewStudentPage'
+import CreateSchedulePage from './pages/CreateSchedulePage'
+import NewActivityPage from './pages/NewActivityPage'
 
 export default function App() {
   return (
@@ -22,7 +26,20 @@ export default function App() {
           <Route path='/activities' element={<ActivitiesPage />} />
           <Route path='/trainers' element={<TrainersPage />} />
           <Route path='/students' element={<StudentsPage />} />
-          <Route path='/trainning-schedules' element={<TrainningSchedulePage />} />
+          <Route
+            path='/trainning-schedules'
+            element={<TrainningSchedulePage />}
+          />
+          <Route path='/trainers/new' element={<NewTrainerPage />} />
+          <Route path='/students/new' element={<NewStudentPage />} />
+          <Route
+            path='/trainning-schedules/create'
+            element={<CreateSchedulePage />}
+          />
+          <Route
+            path='/activities/new'
+            element={<NewActivityPage />}
+          />
         </Route>
       </Routes>
     </Router>

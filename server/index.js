@@ -1,10 +1,10 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const memberRoutes = require('./routes/members.js');
-const activityRoutes = require('./routes/activities.js');
-const adminRoutes = require('./routes/admin.js');
-const authMiddleware = require('./middlewares/auth.js');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import adminRoutes from './routes/staff.js';
+import memberRoutes from './routes/members.js';
+import activityRoutes from './routes/activities.js';
+import authMiddleware from './middlewares/auth.js';
 
 dotenv.config();
 
@@ -16,9 +16,10 @@ app.use(express.json());
 
 // admin (Login and Registration)
 app.use('/api/admin', adminRoutes);
+
 // Protected routes
 app.use('/api/members', authMiddleware, memberRoutes);
-app.use('/api/activities', authMiddleware, activityRoutes);
+app.use('/api/activities', activityRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

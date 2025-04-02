@@ -1,5 +1,6 @@
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const authMiddleware = (req, res, next) => {
   const token = req.header('Authorization');
@@ -10,11 +11,11 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token.replace('Bearer ', ''), process.env.JWT_SECRET);
-    req.admin = decoded; // Store admin info in request object
+    req.user = decoded;
     next();
   } catch (error) {
     res.status(401).json({ message: 'Invalid Token' });
   }
 };
 
-module.exports = authMiddleware;
+export default authMiddleware;

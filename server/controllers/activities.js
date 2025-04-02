@@ -1,9 +1,8 @@
-const { PrismaClient } = require('@prisma/client');
+import prisma from "../config/db.js";
 
-const prisma = new PrismaClient();
 
 // Create a new activity
-const createActivity = async (req, res) => {
+export const createActivity = async (req, res) => {
   try {
     const { name, description } = req.body;
 
@@ -22,7 +21,7 @@ const createActivity = async (req, res) => {
 };
 
 // Get all activities
-const getAllActivities = async (req, res) => {
+export const getAllActivities = async (req, res) => {
   try {
     const activities = await prisma.activity.findMany({
       include: { members: true }, // Include related members
@@ -35,7 +34,7 @@ const getAllActivities = async (req, res) => {
 };
 
 // Get a single activity by ID
-const getActivityById = async (req, res) => {
+export const getActivityById = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -54,7 +53,7 @@ const getActivityById = async (req, res) => {
 };
 
 // Update an activity
-const updateActivity = async (req, res) => {
+export const updateActivity = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, description } = req.body;
@@ -75,7 +74,7 @@ const updateActivity = async (req, res) => {
 };
 
 // Delete an activity
-const deleteActivity = async (req, res) => {
+export const deleteActivity = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -90,10 +89,3 @@ const deleteActivity = async (req, res) => {
   }
 };
 
-module.exports = {
-  createActivity,
-  getAllActivities,
-  getActivityById,
-  updateActivity,
-  deleteActivity,
-};
