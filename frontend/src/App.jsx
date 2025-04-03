@@ -13,6 +13,7 @@ import NewTrainerPage from './pages/NewTrainerPage'
 import NewStudentPage from './pages/NewStudentPage'
 import CreateSchedulePage from './pages/CreateSchedulePage'
 import NewActivityPage from './pages/NewActivityPage'
+import ProtectedRoute from './components/ProtectedRoute'
 
 export default function App() {
   return (
@@ -21,25 +22,24 @@ export default function App() {
         <Route path='/' element={<HomePage />} />
         <Route path='/register' element={<RegisterPage />} />
         <Route path='/login' element={<LoginPage />} />
-        <Route element={<DashboardLayout />}>
-          <Route path='/dashboard' element={<DashboardPage />} />
-          <Route path='/activities' element={<ActivitiesPage />} />
-          <Route path='/trainers' element={<TrainersPage />} />
-          <Route path='/students' element={<StudentsPage />} />
-          <Route
-            path='/trainning-schedules'
-            element={<TrainningSchedulePage />}
-          />
-          <Route path='/trainers/new' element={<NewTrainerPage />} />
-          <Route path='/students/new' element={<NewStudentPage />} />
-          <Route
-            path='/trainning-schedules/create'
-            element={<CreateSchedulePage />}
-          />
-          <Route
-            path='/activities/new'
-            element={<NewActivityPage />}
-          />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<DashboardLayout />}>
+            <Route path='/dashboard' element={<DashboardPage />} />
+            <Route path='/activities' element={<ActivitiesPage />} />
+            <Route path='/trainers' element={<TrainersPage />} />
+            <Route path='/students' element={<StudentsPage />} />
+            <Route
+              path='/trainning-schedules'
+              element={<TrainningSchedulePage />}
+            />
+            <Route path='/trainers/new' element={<NewTrainerPage />} />
+            <Route path='/students/new' element={<NewStudentPage />} />
+            <Route
+              path='/trainning-schedules/create'
+              element={<CreateSchedulePage />}
+            />
+            <Route path='/activities/new' element={<NewActivityPage />} />
+          </Route>
         </Route>
       </Routes>
     </Router>

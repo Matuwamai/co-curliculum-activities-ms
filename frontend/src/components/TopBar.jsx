@@ -2,16 +2,19 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { toggleSidebar } from "../redux/slices/navSlices";
 import { Menu, UserRound } from "lucide-react";
+import { useAuthStore } from "../stores/authStore";
 
 const TopBar = () => {
   const dispatch = useDispatch();
+  const {user, logout} = useAuthStore();
 
   const handleSidebar = () => {
     dispatch(toggleSidebar());
   };
 
   const handleLogout = () => {
-    
+    logout();
+    window.location.href = '/login';
   }
   return (
     <>
@@ -21,7 +24,7 @@ const TopBar = () => {
         </div>
         <div className='flex items-center gap-2'>
           <div className='flex space-x-2 items-center'>
-            <h4 className='my-0'>June Daisy</h4>
+            <h4 className='my-0'>{user.fullName}</h4>
             <button className='bg-blue-200 text-blue-500 px-4 py-1 rounded-full cursor-pointer' onClick={handleLogout}>
               Logout
             </button>

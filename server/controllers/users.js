@@ -44,7 +44,7 @@ export const registerAdmin = async (req, res) => {
 
 export const registerUser = async (req, res) => {
   try {
-    const { userType } = req.params;
+    const { userType } = req.query;
     if (!["student", "trainer"].includes(userType)) {
       return res.status(400).json({ message: "Invalid user type" });
     }
@@ -64,6 +64,7 @@ export const registerUser = async (req, res) => {
       if (existingUser) {
         return res.status(400).json({ message: "User already exists" });
       }
+      
 
       const newUser = await prisma.user.create({
         data: {
@@ -228,7 +229,7 @@ export const getUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
-    const { userType } = req.params;
+    const { userType } = req.query;
     const { id } = req.params;
     if (!["student", "trainer"].includes(userType)) {
       return res.status(400).json({ message: "Invalid user type" });
@@ -250,15 +251,14 @@ export const updateUser = async (req, res) => {
         return res.status(404).json({ message: "User not found" });
       }
 
-      const hashedPassword =  await bcrypt.hash(password, 10);
-
+      const hashedPassword = await bcrypt.hash(password, 10);
 
       const updatedUser = await prisma.user.update({
         data: {
           fullName: fullName || existingUser.fullName,
           email: email || existingUser.email,
           phoneNo: phoneNo || existingUser.phoneNo,
-            password: hashedPassword || existingUser.password,
+          password: hashedPassword || existingUser.password,
           student: {
             update: {
               parentName: parentName || existingUser.student.parentName,
@@ -280,14 +280,14 @@ export const updateUser = async (req, res) => {
 
       const existingUser = await prisma.user.findUnique({
         where: {
-            id: Number(id),
+          id: Number(id),
         },
       });
 
       if (!existingUser) {
         return res.status(404).json({ message: "User not found" });
       }
-        const hashedPassword =  await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 10);
 
       const updatedUser = await prisma.user.update({
         data: {
