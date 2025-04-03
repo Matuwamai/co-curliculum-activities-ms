@@ -24,7 +24,7 @@ export const createActivity = async (req, res) => {
 export const getAllActivities = async (req, res) => {
   try {
     const activities = await prisma.activity.findMany({
-      include: { members: true }, // Include related members
+      include: { students: true },
     });
     res.status(200).json(activities);
   } catch (error) {
@@ -40,7 +40,7 @@ export const getActivityById = async (req, res) => {
 
     const activity = await prisma.activity.findUnique({
       where: { id: parseInt(id) },
-      include: { members: true }, // Include members enrolled in this activity
+      include: { students: true }, // Include members enrolled in this activity
     });
 
     if (!activity) return res.status(404).json({ message: 'Activity not found' });

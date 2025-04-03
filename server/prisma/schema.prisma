@@ -11,11 +11,11 @@ model Activity {
   id          Int            @id @default(autoincrement())
   name        String         @unique
   description String?
-  stduents     StudentActivity[]
+  students     StudentActivity[]
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
-  trainerId   Int            @unique
-  trainer     Trainer        @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  trainerId   Int?
+  trainer     Trainer?        @relation(fields: [trainerId], references: [id], onDelete: Cascade)
   schedule    Schedule[]
 
   @@index([id, name])

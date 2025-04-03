@@ -14,6 +14,7 @@ import NewStudentPage from './pages/NewStudentPage'
 import CreateSchedulePage from './pages/CreateSchedulePage'
 import NewActivityPage from './pages/NewActivityPage'
 import ProtectedRoute from './components/ProtectedRoute'
+import EditActivityPage from './pages/EditActivityPage'
 
 export default function App() {
   return (
@@ -26,6 +27,8 @@ export default function App() {
           <Route element={<DashboardLayout />}>
             <Route path='/dashboard' element={<DashboardPage />} />
             <Route path='/activities' element={<ActivitiesPage />} />
+            <Route path='/activities/new' element={<NewActivityPage />} />
+            <Route path='/activities/:id/edit' element={<EditActivityPage />} />
             <Route path='/trainers' element={<TrainersPage />} />
             <Route path='/students' element={<StudentsPage />} />
             <Route
@@ -38,7 +41,6 @@ export default function App() {
               path='/trainning-schedules/create'
               element={<CreateSchedulePage />}
             />
-            <Route path='/activities/new' element={<NewActivityPage />} />
           </Route>
         </Route>
       </Routes>

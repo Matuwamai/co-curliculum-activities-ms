@@ -26,7 +26,7 @@ export const useAuthStore = create(
         user: state.user ? { ...state.user, ...userData } : null,
       })),
 
-      getAccessToken: () => {
+      getToken: () => {
         const state = get();
         return state.token;
       }

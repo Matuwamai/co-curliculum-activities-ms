@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { API_URL } from '../url';
 import { useAuthStore } from '../stores/authStore';
+import Message from '../components/Message';
 
 const LoginPage = () => {
   const {login} = useAuthStore((state) => state);
@@ -50,9 +51,7 @@ const LoginPage = () => {
         <h2 className='text-2xl font-bold mb-6 text-center text-blue-400'>Welcome Back to Sports Academy</h2>
         <p className='text-gray-600 mb-4 text-center'>Please login to your account</p>
         {loginMutation.isError && (
-          <div className='bg-red-200 text-red-700 p-2 rounded mb-4'>
-            {error}
-          </div>
+         <Message variant='danger' message={error} visible={true} />
         )}
         <form onSubmit={handleLogin}>
           <div className='mb-4'>

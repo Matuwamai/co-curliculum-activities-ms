@@ -3,6 +3,9 @@ import React from "react";
 import { Delete, Eye, Pencil } from "lucide-react";
 import DataTable from "../components/DataTable";
 import PageHeader from "../components/PageHeader";
+import { useQuery } from "@tanstack/react-query";
+import { fetchActivities } from "../services/activities";
+import { Link } from "react-router-dom";
 
 const columns = [
   {
@@ -80,14 +83,11 @@ const columns = [
             }}>
             <Eye size={16} />
           </button>
-          <button
+          <Link
             className='border text-green-400 cursor-pointer p-2 rounded'
-            onClick={() => {
-              // Handle delete action
-              console.log(`Delete user with ID: ${params.row.id}`);
-            }}>
+            to={`/activities/${params.row.id}/edit`}>
             <Pencil size={16} />
-          </button>
+          </Link>
           <button
             className='border text-red-400 cursor-pointer p-2 rounded'
             onClick={() => {
@@ -102,31 +102,48 @@ const columns = [
   },
 ];
 
-const data = [
-  {
-    id: 1,
-    name: "Activity 1",
-    description: "Description for Activity 1",
-    createdAt: "2023-10-01T12:00:00Z",
-    students: [],
-  },
-  {
-    id: 2,
-    name: "Activity 2",
-    description: "Description for Activity 2",
-    createdAt: "2023-10-02T12:00:00Z",
-    students: [],
-  },
-  {
-    id: 3,
-    name: "Activity 3",
-    description: "Description for Activity 3",
-    createdAt: "2023-10-03T12:00:00Z",
-    students: [],
-  },
-];
+// const dataNew = [
+//   {
+//     id: 1,
+//     name: "Activity 1",
+//     description: "Description for Activity 1",
+//     createdAt: "2023-10-01T12:00:00Z",
+//     students: [],
+//   },
+//   {
+//     id: 2,
+//     name: "Activity 2",
+//     description: "Description for Activity 2",
+//     createdAt: "2023-10-02T12:00:00Z",
+//     students: [],
+//   },
+//   {
+//     id: 3,
+//     name: "Activity 3",
+//     description: "Description for Activity 3",
+//     createdAt: "2023-10-03T12:00:00Z",
+//     students: [],
+//   },
+// ];
 
 const ActivitiesPage = () => {
+  const { isPending, isError, data, error } = useQuery({
+    queryKey: ["activities"],
+    queryFn: fetchActivities,
+  });
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
+  if (isError) {
+    console.log(error);
+    return (
+      <div>
+        <h2 className='text-red-500'>Error: {error.message}</h2>
+      </div>
+    );
+  }
+
+  console.log(data); 
   return (
     <div>
       <PageHeader

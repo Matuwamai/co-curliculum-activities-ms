@@ -4,6 +4,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import TopBar from "./components/TopBar";
 import SideBar from "./components/SideBar";
 // import { useSelector } from "react-redux";
+import { ToastContainer, Bounce } from "react-toastify";
 
 
 export default function DashboardLayout() {
@@ -14,6 +15,19 @@ const userInfo = { access: true }
   if (userInfo?.access) {
     return (
       <div className='flex h-screen overflow-hidden'>
+        <ToastContainer
+          position='top-right'
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme='light'
+          transition={Bounce}
+        />
         <SideBar
           isCollapsed={isCollapsed}
           setIsCollapsed={setCollapsed}
