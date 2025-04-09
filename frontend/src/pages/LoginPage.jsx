@@ -34,6 +34,7 @@ const LoginPage = () => {
       onSuccess: (data) => {
         const { user, token } = data;
         login(user, token);
+        localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem('token', token);
         window.location.href = '/dashboard';
       },
