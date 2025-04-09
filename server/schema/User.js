@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi from "joi";
 
 export const userLoginSchema = Joi.object({
   email: Joi.string().email().required(),
@@ -10,6 +10,8 @@ export const studentSchema = Joi.object({
   email: Joi.string().email().required(),
   phoneNo: Joi.string().required(),
   parentName: Joi.string().required(),
+  password: Joi.string().required(),
+  role: Joi.string().valid("STUDENT").required(),
 });
 
 export const trainerSchema = Joi.object({
@@ -17,20 +19,22 @@ export const trainerSchema = Joi.object({
   email: Joi.string().email().required(),
   phoneNo: Joi.string().required(),
   nationalIdNo: Joi.string().required(),
+  password: Joi.string().required(),
+  role: Joi.string().valid("TRAINER").required(),
 });
 
 export const studentEditSchema = Joi.object({
-    fullName: Joi.string(),
-    email: Joi.string().email(),
-    password: Joi.string().min(8),
-    phoneNo: Joi.string(),
-    parentName: Joi.string(),
+  fullName: Joi.string(),
+  email: Joi.string().email(),
+  password: Joi.string(),
+  phoneNo: Joi.string(),
+  parentName: Joi.string(),
 });
 
 export const trainerEditSchema = Joi.object({
   fullName: Joi.string(),
   email: Joi.string().email(),
-  password: Joi.string().min(8),
+  password: Joi.string(),
   phoneNo: Joi.string(),
   nationalIdNo: Joi.string(),
 });

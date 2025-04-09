@@ -1,7 +1,7 @@
 import { ROLE } from "@prisma/client";
 import prisma from "../config/db.js";
 import {
-    studentEditSchema,
+  studentEditSchema,
   studentSchema,
   trainerEditSchema,
   trainerSchema,
@@ -11,40 +11,41 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 export const registerAdmin = async (req, res) => {
-    try {
-        const { fullName, email, phoneNo, password } = req.body;
-    
-        const existingUser = await prisma.user.findFirst({
-        where: {
-            OR: [{ email }, { phoneNo }],
-        },
-        });
-    
-        if (existingUser) {
-        return res.status(400).json({ message: "User already exists" });
-        }
-    
-        const hashedPassword = await bcrypt.hash(password, 10);
-    
-        const newUser = await prisma.user.create({
-        data: {
-            fullName,
-            email,
-            phoneNo,
-            password: hashedPassword,
-            role: ROLE.ADMIN,
-        },
-        });
-    
-        res.status(201).json(newUser);
-    } catch (error) {
-        res.status(500).json({ message: "Error registering admin" });
+  try {
+    const { fullName, email, phoneNo, password } = req.body;
+
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ email }, { phoneNo }],
+      },
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
     }
-}
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await prisma.user.create({
+      data: {
+        fullName,
+        email,
+        phoneNo,
+        password: hashedPassword,
+        role: ROLE.ADMIN,
+      },
+    });
+
+    res.status(201).json(newUser);
+  } catch (error) {
+    res.status(500).json({ message: "Error registering admin" });
+  }
+};
 
 export const registerUser = async (req, res) => {
   try {
     const { userType } = req.query;
+    console.log(userType);
     if (!["student", "trainer"].includes(userType)) {
       return res.status(400).json({ message: "Invalid user type" });
     }
@@ -53,7 +54,9 @@ export const registerUser = async (req, res) => {
       if (error) {
         return res.status(400).json({ message: error.details[0].message });
       }
-      const { fullName, email, phoneNo, parentName } = value;
+      const { fullName, email, phoneNo, parentName, role, password } = value;
+
+      const hashedPassword = await bcrypt.hash(password, 10);
 
       const existingUser = await prisma.user.findFirst({
         where: {
@@ -64,13 +67,14 @@ export const registerUser = async (req, res) => {
       if (existingUser) {
         return res.status(400).json({ message: "User already exists" });
       }
-      
 
       const newUser = await prisma.user.create({
         data: {
           fullName,
           email,
+          role,
           phoneNo,
+          password: hashedPassword,
           student: {
             create: {
               parentName,
@@ -83,12 +87,16 @@ export const registerUser = async (req, res) => {
       });
 
       res.status(201).json(newUser);
-    } else {
+    } else if (userType === "trainer") {
+      console.log("Trainer registration request:", req.body);
       const { error, value } = trainerSchema.validate(req.body);
       if (error) {
+        console.log("Trainer Validation Error:", error);
         return res.status(400).json({ message: error.details[0].message });
       }
-      const { fullName, email, phoneNo, nationalIdNo } = value;
+      const { fullName, email, phoneNo, nationalIdNo, role, password } = value;
+
+      const hashedPassword = await bcrypt.hash(password, 10);
 
       const existingUser = await prisma.user.findFirst({
         where: {
@@ -109,6 +117,8 @@ export const registerUser = async (req, res) => {
           fullName,
           email,
           phoneNo,
+          password: hashedPassword,
+          role,
           trainer: {
             create: {
               nationalIdNo,
@@ -168,6 +178,7 @@ export const login = async (req, res) => {
 
     res.status(200).json({ user: userData, token });
   } catch (error) {
+    console.log("Login error:", error);
     res.status(500).json({ message: "Error logging in" });
   }
 };
@@ -175,6 +186,7 @@ export const login = async (req, res) => {
 export const getAllUsers = async (req, res) => {
   try {
     const { role } = req.query;
+    console.log(role);
     if (role && !["STUDENT", "TRAINER"].includes(role)) {
       return res.status(400).json({ message: "Invalid role" });
     }
