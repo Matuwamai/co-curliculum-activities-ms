@@ -1,5 +1,8 @@
-import React from 'react'
-import DataTable from '../components/DataTable'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios';
+import { API_URL } from '../url';
+import DataTable from '../components/DataTable';
+import { useMutation } from '@tanstack/react-query';
 import { Delete, Eye, Pencil } from "lucide-react";
 import PageHeader from '../components/PageHeader';
 
@@ -61,7 +64,7 @@ const columns = [
       );
       return (
         <div className=''>
-          <h6 className='bg-slate-100px-2 rounded-md text-blue-300'>
+          <h6 className='bg-slate-100 px-2 rounded-md text-blue-300'>
             {formattedDate}
           </h6>
         </div>
@@ -105,46 +108,44 @@ const columns = [
   },
 ];
 
-const rows = [
-  {
-    id: 1,
-    fullName: "John Doe",
-    email: "johndoe@example.com",
-    phoneNo: "123-456-7890",
-    createdAt: "2023-01-15T10:00:00Z",
-  },
-  {
-    id: 2,
-    fullName: "Jane Smith",
-    email: "janesmith@example.com",
-    phoneNo: "987-654-3210",
-    createdAt: "2023-02-20T14:30:00Z",
-  },
-  {
-    id: 3,
-    fullName: "Alice Johnson",
-    email: "alicej@example.com",
-    phoneNo: "555-123-4567",
-    createdAt: "2023-03-10T08:15:00Z",
-  },
-  {
-    id: 4,
-    fullName: "Bob Brown",
-    email: "bobbrown@example.com",
-    phoneNo: "444-987-6543",
-    createdAt: "2023-04-05T16:45:00Z",
-  },
-  {
-    id: 5,
-    fullName: "Charlie Davis",
-    email: "charlied@example.com",
-    phoneNo: "333-222-1111",
-    createdAt: "2023-05-25T12:00:00Z",
-  },
-];
-
-
 const StudentsPage = () => {
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchStudents = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.error("No token found in localStorage");
+      return;
+    }
+    const response = await axios.get(`${API_URL}/users/fetch-users`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+      }
+    });
+    console.log("Fetching student", response.data);
+    return response.data;
+  }
+
+  const mutation = useMutation({
+  mutationFn: fetchStudents,
+  onSuccess: (data) => {
+    setStudents(data);
+    setLoading(false);
+  },
+  onError: (error) => {
+    console.error("Error fetching students:", error);
+    setLoading(false);
+  },
+});
+
+  useEffect(() => {
+    mutation.mutate();
+  }
+  , []);
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div>
@@ -155,7 +156,7 @@ const StudentsPage = () => {
         placeholder='Search Student by name and enter...'
         onSubmit={() => {}}
       />
-      <DataTable data={rows} columns={columns} />
+      <DataTable data={students} columns={columns} />
     </div>
   );
 }
