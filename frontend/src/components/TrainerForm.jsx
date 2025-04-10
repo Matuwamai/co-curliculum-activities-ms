@@ -7,7 +7,7 @@ const TrainerForm = ({ mode = "new" }) => {
   const [trainerData, setTrainerData] = useState({
     fullName: "",
     password: "",
-    role: "",
+    role: "TRAINER",
     email: "",
     phoneNo: "",
     nationalIdNo: "",
@@ -70,6 +70,8 @@ const TrainerForm = ({ mode = "new" }) => {
       fullName: "",
       email: "",
       phoneNo: "",
+      password: "",
+      role: "TRAINER",
       nationalIdNo: "",
     });
   };
