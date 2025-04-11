@@ -16,6 +16,7 @@ import NewActivityPage from "./pages/NewActivityPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import EditActivityPage from "./pages/EditActivityPage";
 import EditStudentPage from "./pages/EditStudentPage";
+import EditTrainerPage from "./pages/EditTrainerPage";
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="/students" element={<StudentsPage />} />
             <Route path="/students/new" element={<NewStudentPage />} />
             <Route path="/students/:id/edit" element={<EditStudentPage />} />
+            <Route path="/trainers/:id/edit" element={<EditTrainerPage />} />
             <Route
               path="/trainning-schedules"
               element={<TrainningSchedulePage />}

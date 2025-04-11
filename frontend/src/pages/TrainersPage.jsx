@@ -1,40 +1,17 @@
 import React, { useEffect } from "react";
-import axios from "axios";
-import { API_URL } from "../url";
 import { useMutation } from "@tanstack/react-query";
 import { Delete, Eye, Pencil } from "lucide-react";
 import DataTable from "../components/DataTable";
+import { fetchTrainers, deleteTrainer } from "../services/trainer";
 import PageHeader from "../components/PageHeader";
+import { Link } from "react-router";
 
 const TrainersPage = () => {
   const [trainers, setTrainers] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
 
-  const handleDeleteTrainer = async (trainerId) => {
-    try {
-      const isConfirmed = window.confirm(
-        "Are you sure you want to delete a tainer? This action cannot be undone."
-      );
-      if (!isConfirmed) {
-        return;
-      } else {
-        const response = await axios.delete(
-          `${API_URL}/users/${trainerId}/delete`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        return response.data;
-      }
-    } catch (error) {
-      console.error("Error deleting trainer:", error);
-      throw error;
-    }
-  };
   const deleteTrainerMutation = useMutation({
-    mutationFn: handleDeleteTrainer,
+    mutationFn: deleteTrainer,
     onSuccess: (data, trainerId) => {
       mutation.mutate();
       setTrainers((prevTrainers) =>
@@ -46,21 +23,6 @@ const TrainersPage = () => {
       console.error("Error deleting Trainer:", error);
     },
   });
-
-  const fetchTrainers = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) console.error("No token found in localStorage");
-
-    const response = await axios.get(`${API_URL}/users/fetch-users`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      params: {
-        role: "TRAINER",
-      },
-    });
-    return response.data;
-  };
 
   const mutation = useMutation({
     mutationFn: fetchTrainers,
@@ -173,15 +135,12 @@ const TrainersPage = () => {
             >
               <Eye size={16} />
             </button>
-            <button
-              className="border text-green-400 cursor-pointer p-2 rounded"
-              onClick={() => {
-                // Handle delete action
-                console.log(`Delete user with ID: ${params.row.id}`);
-              }}
+            <Link
+              to={`/trainers/${params.row.id}/edit`}
+              className="border text-blue-400 cursor-pointer p-2 rounded"
             >
               <Pencil size={16} />
-            </button>
+            </Link>
             <button
               className="border text-red-400 cursor-pointer p-2 rounded"
               onClick={() => {

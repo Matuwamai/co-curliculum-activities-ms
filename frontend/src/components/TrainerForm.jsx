@@ -1,18 +1,35 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { API_URL } from "../url";
+import React, { useState, useEffect } from "react";
+import { updateTrainer, createTrainer } from "../services/trainer";
 import { useMutation } from "@tanstack/react-query";
+import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { queryClient } from "../lib/queryClient";
 
-const TrainerForm = ({ mode = "new" }) => {
+const TrainerForm = ({ mode = "new", initialData = null }) => {
+  const navigate = useNavigate();
+  const { id } = useParams();
   const [trainerData, setTrainerData] = useState({
     fullName: "",
-    password: "",
-    role: "TRAINER",
     email: "",
     phoneNo: "",
+    password: "",
+    role: "TRAINER",
     nationalIdNo: "",
   });
-  const [loading, setLoading] = useState(false);
+
+  const trainerUpdateMutation = useMutation({
+    mutationFn: (trainerData) => {
+      updateTrainer(id, trainerData);
+    },
+    onSuccess: () => {
+      toast.success("Trainer updated successfully");
+      queryClient.invalidateQueries("trainers");
+      navigate("/trainers");
+    },
+    onError: (error) => {
+      console.error("Error creating trainer:", error);
+    },
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,50 +38,30 @@ const TrainerForm = ({ mode = "new" }) => {
       [name]: value,
     }));
   };
+
+  const trainerMutation = useMutation({
+    mutationFn: createTrainer,
+    onSuccess: () => {
+      toast.success("Trainer created successfully");
+      queryClient.invalidateQueries("trainers");
+      handleReset();
+      navigate("/trainers");
+    },
+    onError: (error) => {
+      console.error("Error creating activity:", error);
+      // Optionally, you can show an error message here
+    },
+  });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
-    if (!token) {
-      console.error("No token found in localStorage");
-      return;
+    if (mode === "edit") {
+      trainerUpdateMutation.mutate(trainerData);
     }
-
-    const userType = "trainer";
-    const payload = {
-      ...trainerData,
-    };
-    console.log("payload", payload);
-
-    const storedUser = localStorage.getItem("user");
-    if (!storedUser) {
-      console.error("No user found in localStorage");
-      return;
-    }
-
-    const user = JSON.parse(storedUser);
-    const userId = user.id;
-
-    try {
-      const response = await axios.post(
-        `${API_URL}/users/${
-          mode === "new" ? `register?userType=${userType}` : `${userId}/edit`
-        }`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log("Trainer added/updated successfully:", response.data);
-      alert("Trainer added/updated successfully");
-      handleReset();
-    } catch (error) {
-      console.error("Error adding/updating trainer:", error);
-      alert("Error adding/updating trainer");
+    if (mode === "new") {
+      trainerMutation.mutate(trainerData);
     }
   };
-
   const handleReset = () => {
     setTrainerData({
       fullName: "",
@@ -75,6 +72,27 @@ const TrainerForm = ({ mode = "new" }) => {
       nationalIdNo: "",
     });
   };
+
+  useEffect(() => {
+    if (mode === "edit" && initialData) {
+      setTrainerData({
+        fullName: initialData.fullName,
+        email: initialData.email,
+        phoneNo: initialData.phoneNo,
+        nationalIdNo: initialData.nationalIdNo,
+        password: "",
+      });
+    } else {
+      setTrainerData({
+        fullName: "",
+        email: "",
+        phoneNo: "",
+        nationalIdNo: "",
+        password: "",
+        role: "TRAINER",
+      });
+    }
+  }, [mode, initialData]);
 
   return (
     <div>
