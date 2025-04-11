@@ -158,6 +158,8 @@ const TrainersPage = () => {
     },
   ];
 
+  console.log("Trainers data:", trainers);
+
   return (
     <div>
       <PageHeader

@@ -12,7 +12,6 @@ const TrainerForm = ({ mode = "new", initialData = null }) => {
     fullName: "",
     email: "",
     phoneNo: "",
-    password: "",
     role: "TRAINER",
     nationalIdNo: "",
   });
@@ -67,7 +66,6 @@ const TrainerForm = ({ mode = "new", initialData = null }) => {
       fullName: "",
       email: "",
       phoneNo: "",
-      password: "",
       role: "TRAINER",
       nationalIdNo: "",
     });
@@ -79,8 +77,7 @@ const TrainerForm = ({ mode = "new", initialData = null }) => {
         fullName: initialData.fullName || "",
         email: initialData.email || "",
         phoneNo: initialData.phoneNo || "",
-        nationalIdNo: initialData.nationalIdNo || "",
-        password: "",
+        nationalIdNo: initialData.trainer.nationalIdNo || "",
       });
     } else {
       setTrainerData({
@@ -88,11 +85,12 @@ const TrainerForm = ({ mode = "new", initialData = null }) => {
         email: "",
         phoneNo: "",
         nationalIdNo: "",
-        password: "",
         role: "TRAINER",
       });
     }
   }, [mode, initialData]);
+
+  console.log("Trainer Data in trainer form:", trainerData);
 
   return (
     <div>
@@ -151,18 +149,6 @@ const TrainerForm = ({ mode = "new", initialData = null }) => {
             name="phoneNo"
             id="phoneNo"
             value={trainerData.phoneNo}
-            onChange={handleChange}
-            className="p-2 rounded-md border border-gray-300 focus:outline-blue-400"
-          />
-        </div>
-        <div className="mb-3 flex flex-col space-y-2">
-          <label htmlFor="phoneNo">Password</label>
-          <input
-            type="text"
-            name="password"
-            id="password"
-            placeholder="Enter password"
-            value={trainerData.password}
             onChange={handleChange}
             className="p-2 rounded-md border border-gray-300 focus:outline-blue-400"
           />
