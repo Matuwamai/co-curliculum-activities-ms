@@ -76,11 +76,11 @@ const StudentForm = ({ mode = "new", initialData = null }) => {
   useEffect(() => {
     if (mode === "edit" && initialData) {
       setStudentData({
-        fullName: initialData.fullName,
-        email: initialData.email,
-        phoneNo: initialData.phoneNo,
+        fullName: initialData.fullName || "",
+        email: initialData.email || "",
+        phoneNo: initialData.phoneNo || "",
         password: "",
-        parentName: initialData.parentName,
+        parentName: initialData.parentName || "",
       });
     } else {
       setStudentData({

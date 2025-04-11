@@ -76,10 +76,10 @@ const TrainerForm = ({ mode = "new", initialData = null }) => {
   useEffect(() => {
     if (mode === "edit" && initialData) {
       setTrainerData({
-        fullName: initialData.fullName,
-        email: initialData.email,
-        phoneNo: initialData.phoneNo,
-        nationalIdNo: initialData.nationalIdNo,
+        fullName: initialData.fullName || "",
+        email: initialData.email || "",
+        phoneNo: initialData.phoneNo || "",
+        nationalIdNo: initialData.nationalIdNo || "",
         password: "",
       });
     } else {
