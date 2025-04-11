@@ -1,13 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState } from "react";
+import { useParams } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { queryClient } from "../lib/queryClient";
-import { fetchActivities } from "../services/activities";
+import {
+  fetchActivities,
+  assignActivityToStudent,
+} from "../services/activities";
 
 const ViewActivity = () => {
-  const [studentActivities, setStudentActivities] = useState([]);
+  const { id: studentId } = useParams();
+  const queryClient = useQueryClient();
   const [selectedActivityId, setSelectedActivityId] = useState("");
 
+  // Fetch all available activities
   const {
     data: allActivities = [],
     isLoading,
@@ -17,25 +22,79 @@ const ViewActivity = () => {
     queryFn: fetchActivities,
   });
 
+  // Fetch student's current activities
+  const {
+    data: studentActivities = [],
+    isLoading: isLoadingStudentActivities,
+  } = useQuery({
+    queryKey: ["studentActivities", studentId],
+    queryFn: () => fetchStudentActivities(studentId), // You'll need to implement this
+  });
+
+  // Mutation for assigning activity
+  const { mutate: assignActivity, isPending: isAssigning } = useMutation({
+    mutationFn: ({ activityId, studentId }) => {
+      console.log(
+        "Assigning activity in mutation func:",
+        activityId,
+        studentId
+      );
+      assignActivityToStudent({ activityId, studentId });
+    },
+    onSuccess: () => {
+      toast.success("Activity assigned successfully");
+      setSelectedActivityId(""); // Reset selection
+      queryClient.invalidateQueries(["studentActivities", studentId]);
+    },
+    onError: () => {
+      toast.error("Failed to assign activity");
+    },
+  });
+
+  // Mutation for removing activity
+  const { mutate: removeActivity } = useMutation({
+    mutationFn: (activityId) =>
+      removeActivityFromStudent(activityId, studentId), // Implement this
+    onSuccess: () => {
+      toast.success("Activity removed successfully");
+      queryClient.invalidateQueries(["studentActivities", studentId]);
+    },
+    onError: () => {
+      toast.error("Failed to remove activity");
+    },
+  });
+
   const handleAssign = () => {
-    const selected = allActivities.find(
+    console.log("Assigning activity:", selectedActivityId, studentId);
+    if (!selectedActivityId || !studentId) return;
+
+    const activityExists = studentActivities.some(
       (a) => a.id === Number(selectedActivityId)
     );
-    if (selected && !studentActivities.some((a) => a.id === selected.id)) {
-      setStudentActivities((prev) => [...prev, selected]);
+
+    if (activityExists) {
+      toast.warning("Activity already assigned");
+      return;
     }
+
+    assignActivity({
+      activityId: Number(selectedActivityId),
+      studentId: studentId,
+    });
   };
 
   const handleRemove = (activityId) => {
-    setStudentActivities((prev) => prev.filter((act) => act.id !== activityId));
+    removeActivity(activityId);
   };
 
   return (
     <div className="p-4 border rounded shadow">
-      <h2 className="text-lg font-bold mb-2">Current Activities</h2>
+      <h2 className="text-lg font-bold mb-2">Student Activities</h2>
 
-      {studentActivities.length === 0 ? (
-        <p className="text-gray-500">You have no activity yet.</p>
+      {isLoadingStudentActivities ? (
+        <p>Loading activities...</p>
+      ) : studentActivities.length === 0 ? (
+        <p className="text-gray-500">No activities assigned yet.</p>
       ) : (
         <ul className="mb-4">
           {studentActivities.map((activity) => (
@@ -49,6 +108,7 @@ const ViewActivity = () => {
               <button
                 className="text-red-500 text-sm"
                 onClick={() => handleRemove(activity.id)}
+                disabled={isAssigning}
               >
                 Remove
               </button>
@@ -62,12 +122,13 @@ const ViewActivity = () => {
           value={selectedActivityId}
           onChange={(e) => setSelectedActivityId(e.target.value)}
           className="border px-2 py-1 rounded"
+          disabled={isLoading || isAssigning}
         >
           <option value="">-- Select Activity --</option>
           {isLoading ? (
-            <option>Loading...</option>
+            <option>Loading activities...</option>
           ) : isError ? (
-            <option>Error loading</option>
+            <option>Error loading activities</option>
           ) : (
             allActivities.map((act) => (
               <option key={act.id} value={act.id}>
@@ -76,12 +137,13 @@ const ViewActivity = () => {
             ))
           )}
         </select>
+
         <button
           onClick={handleAssign}
-          className="bg-blue-500 text-white px-3 py-1 rounded"
-          disabled={!selectedActivityId}
+          className="bg-blue-500 text-white px-3 py-1 rounded disabled:opacity-50"
+          disabled={!selectedActivityId || isAssigning}
         >
-          Assign
+          {isAssigning ? "Assigning..." : "Assign"}
         </button>
       </div>
     </div>

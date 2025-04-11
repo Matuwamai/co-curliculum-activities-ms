@@ -24,7 +24,7 @@ export const fetchActivityById = async (id) => {
       : "An error occurred";
     throw new Error(errorMessage);
   }
-}
+};
 
 export const createActivity = async (activityData) => {
   try {
@@ -48,4 +48,12 @@ export const updateActivity = async (id, activityData) => {
       : "An error occurred";
     throw new Error(errorMessage);
   }
+};
+
+export const assignActivityToStudent = async ({ studentId, activityId }) => {
+  const response = await api.post(`activities/${studentId}/assign`, {
+    studentId,
+    activityId,
+  });
+  return response.data;
 };
