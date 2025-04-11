@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { queryClient } from "../lib/queryClient";
+import ViewActivity from "./ViewActivity";
 
 const StudentForm = ({ mode = "new", initialData = null }) => {
   const navigate = useNavigate();
@@ -102,6 +103,7 @@ const StudentForm = ({ mode = "new", initialData = null }) => {
         ) : (
           <h6 className="text-xl text-blue-400 mb-3">Edit Student</h6>
         )}
+
         <div className="mb-3 flex flex-col space-y-2">
           <label htmlFor="fullName">Full Name</label>
           <input
