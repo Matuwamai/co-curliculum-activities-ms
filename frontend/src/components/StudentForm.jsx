@@ -1,8 +1,13 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { API_URL } from "../url";
+import React, { useState, useEffect } from "react";
+import { updateStudent, createStudent } from "../services/students";
+import { useMutation } from "@tanstack/react-query";
+import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { queryClient } from "../lib/queryClient";
 
-const StudentForm = ({ mode = "new" }) => {
+const StudentForm = ({ mode = "new", initialData = null }) => {
+  const navigate = useNavigate();
+  const { id } = useParams();
   const [studentData, setStudentData] = useState({
     fullName: "",
     email: "",
@@ -10,6 +15,20 @@ const StudentForm = ({ mode = "new" }) => {
     password: "",
     role: "STUDENT",
     parentName: "",
+  });
+
+  const studentUpdateMutation = useMutation({
+    mutationFn: (studentData) => {
+      updateStudent(id, studentData);
+    },
+    onSuccess: () => {
+      toast.success("Student updated successfully");
+      queryClient.invalidateQueries("students");
+      navigate("/students");
+    },
+    onError: (error) => {
+      console.error("Error creating student:", error);
+    },
   });
 
   const handleChange = (e) => {
@@ -20,47 +39,27 @@ const StudentForm = ({ mode = "new" }) => {
     }));
   };
 
+  const studentMutation = useMutation({
+    mutationFn: createStudent,
+    onSuccess: () => {
+      toast.success("Student created successfully");
+      queryClient.invalidateQueries("students");
+      handleReset();
+      navigate("/students");
+    },
+    onError: (error) => {
+      console.error("Error creating activity:", error);
+      // Optionally, you can show an error message here
+    },
+  });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
-    if (!token) {
-      console.error("No token found in localStorage");
-      return;
+    if (mode === "edit") {
+      studentUpdateMutation.mutate(studentData);
     }
-
-    const userType = "student";
-    const payload = {
-      ...studentData,
-    };
-    console.log("payload", payload);
-
-    const storedUser = localStorage.getItem("user");
-    if (!storedUser) {
-      console.error("No user found in localStorage");
-      return;
-    }
-
-    const user = JSON.parse(storedUser);
-    const userId = user.id;
-
-    try {
-      const response = await axios.post(
-        `${API_URL}/users/${
-          mode === "new" ? `register?userType=${userType}` : `${userId}/edit`
-        }`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log("Trainer added/updated successfully:", response.data);
-      alert("Trainer added/updated successfully");
-      handleReset();
-    } catch (error) {
-      console.error("Error adding/updating trainer:", error);
-      alert("Error adding/updating trainer");
+    if (mode === "new") {
+      studentMutation.mutate(studentData);
     }
   };
   const handleReset = () => {
@@ -73,6 +72,27 @@ const StudentForm = ({ mode = "new" }) => {
       parentName: "",
     });
   };
+
+  useEffect(() => {
+    if (mode === "edit" && initialData) {
+      setStudentData({
+        fullName: initialData.fullName,
+        email: initialData.email,
+        phoneNo: initialData.phoneNo,
+        password: "",
+        parentName: initialData.parentName,
+      });
+    } else {
+      setStudentData({
+        fullName: "",
+        email: "",
+        phoneNo: "",
+        password: "",
+        role: "STUDENT",
+        parentName: "",
+      });
+    }
+  }, [mode, initialData]);
 
   return (
     <div>

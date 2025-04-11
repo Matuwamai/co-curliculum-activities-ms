@@ -4,7 +4,10 @@ import { API_URL } from "../url";
 import DataTable from "../components/DataTable";
 import { useMutation } from "@tanstack/react-query";
 import { Delete, Eye, Pencil } from "lucide-react";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import PageHeader from "../components/PageHeader";
+import { fetchStudents } from "../services/students";
 
 const StudentsPage = () => {
   const [students, setStudents] = useState([]);
@@ -26,16 +29,18 @@ const StudentsPage = () => {
             },
           }
         );
+        toast.success("Student deleted successfully");
         return response.data;
       }
     } catch (error) {
+      toast.error("Error deleting student. Please try again.");
       console.error("Error deleting student:", error);
       throw error;
     }
   };
   const deleteStudentMutation = useMutation({
     mutationFn: handleDeleteStudent,
-    onSuccess: (data, studentId) => {
+    onSuccess: (studentId) => {
       mutation.mutate();
       setStudents((prevStudents) =>
         prevStudents.filter((student) => student.id !== studentId)
@@ -46,26 +51,6 @@ const StudentsPage = () => {
       console.error("Error deleting user:", error);
     },
   });
-
-  const fetchStudents = async () => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      console.error("No token found in localStorage");
-      return;
-    }
-    const response = await axios.get(`${API_URL}/users/fetch-users`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      params: {
-        role: "STUDENT",
-      },
-    });
-
-    console.log("Fetching student", response.data);
-    return response.data;
-  };
 
   const mutation = useMutation({
     mutationFn: fetchStudents,
@@ -166,15 +151,13 @@ const StudentsPage = () => {
             >
               <Eye size={16} />
             </button>
-            <button
+            <Link
               className="border text-green-400 cursor-pointer p-2 rounded"
-              onClick={() => {
-                // Handle delete action
-                console.log(`Delete user with ID: ${params.row.id}`);
-              }}
+              to={`/students/${params.row.id}/edit`}
             >
+              {" "}
               <Pencil size={16} />
-            </button>
+            </Link>
             <button
               className="border text-red-400 cursor-pointer p-2 rounded"
               onClick={() => {
@@ -192,6 +175,8 @@ const StudentsPage = () => {
   ];
 
   if (loading) return <div>Loading...</div>;
+
+  console.log("Edit button clicked");
 
   return (
     <div>
