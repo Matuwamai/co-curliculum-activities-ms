@@ -109,7 +109,9 @@ const StudentsPage = () => {
       width: 150,
       renderCell: (params) => {
         return (
-          <h6 className="text-gray-600 my-auto">{params.row.parentName}</h6>
+          <h6 className="text-gray-600 my-auto">
+            {params.row.student.parentName}
+          </h6>
         );
       },
     },

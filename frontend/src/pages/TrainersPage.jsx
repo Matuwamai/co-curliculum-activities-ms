@@ -12,7 +12,7 @@ const TrainersPage = () => {
 
   const deleteTrainerMutation = useMutation({
     mutationFn: deleteTrainer,
-    onSuccess: (data, trainerId) => {
+    onSuccess: (trainerId) => {
       mutation.mutate();
       setTrainers((prevTrainers) =>
         prevTrainers.filter((trainer) => trainer.id !== trainerId)
@@ -27,6 +27,7 @@ const TrainersPage = () => {
   const mutation = useMutation({
     mutationFn: fetchTrainers,
     onSuccess: (data) => {
+      console.log("Fetched trainers:", data);
       setTrainers(data);
       setLoading(false);
     },
@@ -60,7 +61,7 @@ const TrainersPage = () => {
       renderCell: (params) => {
         return (
           <h6 className="text-gray-600 uppercase my-auto">
-            {params.row.nationalId}
+            {params.row.trainer.nationalIdNo}
           </h6>
         );
       },

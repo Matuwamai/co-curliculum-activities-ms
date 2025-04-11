@@ -80,7 +80,7 @@ const StudentForm = ({ mode = "new", initialData = null }) => {
         email: initialData.email || "",
         phoneNo: initialData.phoneNo || "",
         password: "",
-        parentName: initialData.parentName || "",
+        parentName: initialData.student.parentName || "",
       });
     } else {
       setStudentData({
