@@ -244,9 +244,9 @@ export const updateUser = async (req, res) => {
     }
     if (userType === "student") {
       const { error, value } = studentEditSchema.validate(req.body);
-      if (error) {
+      if (error)
         return res.status(400).json({ message: error.details[0].message });
-      }
+
       const { fullName, email, phoneNo, parentName, password } = value;
 
       const existingUser = await prisma.user.findUnique({
@@ -255,11 +255,11 @@ export const updateUser = async (req, res) => {
         },
       });
 
-      if (!existingUser) {
-        return res.status(404).json({ message: "User not found" });
-      }
+      if (!existingUser)
+        return res.status(404).json({ message: "Student not found" });
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+      let hashedPassword;
+      if (password) hashedPassword = await bcrypt.hash(password, 10);
 
       const updatedUser = await prisma.user.update({
         where: {
@@ -280,21 +280,13 @@ export const updateUser = async (req, res) => {
           student: true,
         },
       });
-      console.log("Data to be updated:", {
-        id: Number(id),
-        fullName: fullName || existingUser.fullName,
-        email: email || existingUser.email,
-        phoneNo: phoneNo || existingUser.phoneNo,
-        password: hashedPassword,
-        parentName: parentName || existingUser.student.parentName,
-      });
 
       res.status(201).json(updatedUser);
     } else if (userType === "trainer") {
       const { error, value } = trainerEditSchema.validate(req.body);
-      if (error) {
+      if (error)
         return res.status(400).json({ message: error.details[0].message });
-      }
+
       const { fullName, email, phoneNo, nationalIdNo, password } = value;
 
       const existingUser = await prisma.user.findUnique({
@@ -303,10 +295,11 @@ export const updateUser = async (req, res) => {
         },
       });
 
-      if (!existingUser) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      const hashedPassword = await bcrypt.hash(password, 10);
+      if (!existingUser)
+        return res.status(404).json({ message: "Trainer not found" });
+
+      let hashedPassword;
+      if (password) hashedPassword = await bcrypt.hash(password, 10);
 
       const updatedUser = await prisma.user.update({
         where: {
