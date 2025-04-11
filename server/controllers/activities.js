@@ -1,6 +1,5 @@
 import prisma from "../config/db.js";
 
-
 // Create a new activity
 export const createActivity = async (req, res) => {
   try {
@@ -13,14 +12,18 @@ export const createActivity = async (req, res) => {
       },
     });
 
-    res.status(201).json({ message: 'Activity created successfully', activity: newActivity });
+    res
+      .status(201)
+      .json({
+        message: "Activity created successfully",
+        activity: newActivity,
+      });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error creating activity' });
+    res.status(500).json({ message: "Error creating activity" });
   }
 };
 
-// Get all activities
 export const getAllActivities = async (req, res) => {
   try {
     const activities = await prisma.activity.findMany({
@@ -29,30 +32,29 @@ export const getAllActivities = async (req, res) => {
     res.status(200).json(activities);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error fetching activities' });
+    res.status(500).json({ message: "Error fetching activities" });
   }
 };
 
-// Get a single activity by ID
 export const getActivityById = async (req, res) => {
   try {
     const { id } = req.params;
 
     const activity = await prisma.activity.findUnique({
       where: { id: parseInt(id) },
-      include: { students: true }, // Include members enrolled in this activity
+      include: { students: true },
     });
 
-    if (!activity) return res.status(404).json({ message: 'Activity not found' });
+    if (!activity)
+      return res.status(404).json({ message: "Activity not found" });
 
     res.status(200).json(activity);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error fetching activity' });
+    res.status(500).json({ message: "Error fetching activity" });
   }
 };
 
-// Update an activity
 export const updateActivity = async (req, res) => {
   try {
     const { id } = req.params;
@@ -66,10 +68,15 @@ export const updateActivity = async (req, res) => {
       },
     });
 
-    res.status(200).json({ message: 'Activity updated successfully', activity: updatedActivity });
+    res
+      .status(200)
+      .json({
+        message: "Activity updated successfully",
+        activity: updatedActivity,
+      });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error updating activity' });
+    res.status(500).json({ message: "Error updating activity" });
   }
 };
 
@@ -82,10 +89,9 @@ export const deleteActivity = async (req, res) => {
       where: { id: parseInt(id) },
     });
 
-    res.status(200).json({ message: 'Activity deleted successfully' });
+    res.status(200).json({ message: "Activity deleted successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error deleting activity' });
+    res.status(500).json({ message: "Error deleting activity" });
   }
 };
-

@@ -45,7 +45,6 @@ export const registerAdmin = async (req, res) => {
 export const registerUser = async (req, res) => {
   try {
     const { userType } = req.query;
-    console.log(userType);
     if (!["student", "trainer"].includes(userType)) {
       return res.status(400).json({ message: "Invalid user type" });
     }
@@ -85,7 +84,6 @@ export const registerUser = async (req, res) => {
           student: true,
         },
       });
-
       res.status(201).json(newUser);
     } else if (userType === "trainer") {
       console.log("Trainer registration request:", req.body);
@@ -228,10 +226,7 @@ export const getUser = async (req, res) => {
       },
     });
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
+    if (!user) return res.status(404).json({ message: "User not found" });
     res.status(200).json(user);
   } catch (error) {
     console.error(error);
@@ -242,6 +237,7 @@ export const getUser = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { userType } = req.query;
+    console.log("req body", req.body);
     const { id } = req.params;
     if (!["student", "trainer"].includes(userType)) {
       return res.status(400).json({ message: "Invalid user type" });
@@ -266,6 +262,9 @@ export const updateUser = async (req, res) => {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const updatedUser = await prisma.user.update({
+        where: {
+          id: Number(id),
+        },
         data: {
           fullName: fullName || existingUser.fullName,
           email: email || existingUser.email,
@@ -281,9 +280,17 @@ export const updateUser = async (req, res) => {
           student: true,
         },
       });
+      console.log("Data to be updated:", {
+        id: Number(id),
+        fullName: fullName || existingUser.fullName,
+        email: email || existingUser.email,
+        phoneNo: phoneNo || existingUser.phoneNo,
+        password: hashedPassword,
+        parentName: parentName || existingUser.student.parentName,
+      });
 
       res.status(201).json(updatedUser);
-    } else {
+    } else if (userType === "trainer") {
       const { error, value } = trainerEditSchema.validate(req.body);
       if (error) {
         return res.status(400).json({ message: error.details[0].message });
