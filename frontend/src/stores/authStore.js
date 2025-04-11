@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export const useAuthStore = create(
   persist(
@@ -16,23 +16,28 @@ export const useAuthStore = create(
         });
       },
 
-      logout: () => set({
-        user: null,
-        token: null,
-        isAuthenticated: false,
-      }),
+      logout: () => {
+        set({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+        });
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      },
 
-      updateUser: (userData) => set((state) => ({
-        user: state.user ? { ...state.user, ...userData } : null,
-      })),
+      updateUser: (userData) =>
+        set((state) => ({
+          user: state.user ? { ...state.user, ...userData } : null,
+        })),
 
       getToken: () => {
         const state = get();
         return state.token;
-      }
+      },
     }),
     {
-      name: 'auth',
+      name: "auth",
     }
   )
 );

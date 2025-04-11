@@ -34,7 +34,8 @@ const LoginPage = () => {
       onSuccess: (data) => {
         const { user, token } = data;
         login(user, token);
-        // Redirect to the dashboard or another page
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem('token', token);
         window.location.href = '/dashboard';
       },
       onError: (error) => {
@@ -43,10 +44,10 @@ const LoginPage = () => {
       },
     });
   };
-
+  console.log(loginMutation.isError, error);
 
   return (
-    <div className='bg-blue-400 h-screen flex items-center justify-center'>
+    <div className='bg-[#101b4a] h-screen flex items-center justify-center'>
       <div className='bg-white p-8 rounded shadow-md w-96'>
         <h2 className='text-2xl font-bold mb-6 text-center text-blue-400'>Welcome Back to Sports Academy</h2>
         <p className='text-gray-600 mb-4 text-center'>Please login to your account</p>

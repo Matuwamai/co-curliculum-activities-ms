@@ -102,29 +102,6 @@ const columns = [
   },
 ];
 
-// const dataNew = [
-//   {
-//     id: 1,
-//     name: "Activity 1",
-//     description: "Description for Activity 1",
-//     createdAt: "2023-10-01T12:00:00Z",
-//     students: [],
-//   },
-//   {
-//     id: 2,
-//     name: "Activity 2",
-//     description: "Description for Activity 2",
-//     createdAt: "2023-10-02T12:00:00Z",
-//     students: [],
-//   },
-//   {
-//     id: 3,
-//     name: "Activity 3",
-//     description: "Description for Activity 3",
-//     createdAt: "2023-10-03T12:00:00Z",
-//     students: [],
-//   },
-// ];
 
 const ActivitiesPage = () => {
   const { isPending, isError, data, error } = useQuery({
