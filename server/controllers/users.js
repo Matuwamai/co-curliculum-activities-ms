@@ -55,7 +55,8 @@ export const registerUser = async (req, res) => {
       }
       const { fullName, email, phoneNo, parentName, role, password } = value;
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+      let hashedPassword;
+      if (password) hashedPassword = await bcrypt.hash(password, 10);
 
       const existingUser = await prisma.user.findFirst({
         where: {
@@ -94,7 +95,8 @@ export const registerUser = async (req, res) => {
       }
       const { fullName, email, phoneNo, nationalIdNo, role, password } = value;
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+      let hashedPassword;
+      if (password) hashedPassword = await bcrypt.hash(password, 10);
 
       const existingUser = await prisma.user.findFirst({
         where: {
