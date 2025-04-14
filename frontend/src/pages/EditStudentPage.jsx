@@ -32,7 +32,7 @@ const EditStudentPage = () => {
           <StudentForm mode="edit" initialData={data} id={data.id} />
         </div>
         <div className="w-1/2 border-l-2 border-gray-300 pl-4 mt-7">
-          <ViewActivity />
+          <ViewActivity userType="student" />
         </div>
       </div>
     </div>

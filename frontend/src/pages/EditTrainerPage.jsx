@@ -4,6 +4,7 @@ import TrainerForm from "../components/TrainerForm";
 import { useParams } from "react-router";
 import { fetchTrainerById } from "../services/trainer";
 import { useQuery } from "@tanstack/react-query";
+import ViewActivity from "../components/ViewActivity";
 
 const EditTrainerPage = () => {
   const { id } = useParams();
@@ -25,8 +26,17 @@ const EditTrainerPage = () => {
 
   return (
     <div>
-      <PageHeader btnText="Go to Trainers" btnLink="/trainers" />
-      <TrainerForm mode="edit" initialData={data} id={data.id} />
+      <div>
+        <PageHeader btnText="Go to Students" btnLink="/trainers" />
+        <div className="flex gap-6">
+          <div className="w-1/2">
+            <TrainerForm mode="edit" initialData={data} id={data.id} />
+          </div>
+          <div className="w-1/2 border-l-2 border-gray-300 pl-4 mt-7">
+            <ViewActivity userType="trainer" />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
