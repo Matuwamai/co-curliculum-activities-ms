@@ -4,7 +4,6 @@ import { useMutation } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { queryClient } from "../lib/queryClient";
-import ViewActivity from "./ViewActivity";
 
 const StudentForm = ({ mode = "new", initialData = null }) => {
   const navigate = useNavigate();

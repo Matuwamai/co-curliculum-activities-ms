@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PageHeader from "../components/PageHeader";
 import TrainerForm from "../components/TrainerForm";
 import { useParams } from "react-router";
@@ -16,6 +16,13 @@ const EditTrainerPage = () => {
     refetchOnReconnect: false,
     refetchOnMount: false,
   });
+
+  console.log("Trainer data sent to localStorage:", data);
+  useEffect(() => {
+    if (data?.trainer?.nationalIdNo) {
+      localStorage.setItem("nationalIdNo", data.trainer.nationalIdNo);
+    }
+  }, [data]);
 
   if (isPending) {
     return <div>Loading...</div>;

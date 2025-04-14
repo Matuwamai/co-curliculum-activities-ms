@@ -27,6 +27,7 @@ export const fetchActivityById = async (id) => {
 };
 
 export const createActivity = async (activityData) => {
+  console.log("Activity data:", activityData);
   try {
     const { data } = await api.post(`/activities/`, activityData);
     return data;
@@ -80,6 +81,56 @@ export const removeActivityFromStudent = async (studentId, activityId) => {
     return response.data;
   } catch (error) {
     console.error("Error removing activity from student:", error);
+    const errorMessage = error.response
+      ? error.response.data.message
+      : "An error occurred";
+    throw new Error(errorMessage);
+  }
+};
+
+export const assignActivityToTrainer = async ({
+  trainerId,
+  activityId,
+  nationalIdNo,
+}) => {
+  try {
+    const response = await api.post(`activities/assign/${trainerId}`, {
+      trainerId,
+      activityId,
+      nationalIdNo,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error assigning activity to trainer:", error);
+    const errorMessage = error.response
+      ? error.response.data.message
+      : "An error occurred";
+    throw new Error(errorMessage);
+  }
+};
+
+export const fetchActivitiesByTrainerId = async (trainerId) => {
+  try {
+    const { data } = await api.get(`activities/trainer/${trainerId}`);
+    console.log("Activities for trainer in service:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching activities for trainer in service:", error);
+    const errorMessage = error.response
+      ? error.response.data.message
+      : "An error occurred";
+    throw new Error(errorMessage);
+  }
+};
+
+export const removeActivityFromTrainer = async (trainerId, activityId) => {
+  try {
+    const response = await api.delete(
+      `activities/remove/trainer/${trainerId}/${activityId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error removing activity from trainer:", error);
     const errorMessage = error.response
       ? error.response.data.message
       : "An error occurred";

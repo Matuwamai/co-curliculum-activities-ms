@@ -46,6 +46,14 @@ const columns = [
     },
   },
   {
+    field: "trainer",
+    headerName: "Trainer ID",
+    width: 150,
+    renderCell: (params) => {
+      return <h6 className="text-gray-600 my-auto">{params.row.trainerId}</h6>;
+    },
+  },
+  {
     field: "createdAt",
     headerName: "Date Joined",
     width: 150,

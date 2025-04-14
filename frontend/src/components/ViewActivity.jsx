@@ -7,13 +7,17 @@ import {
   assignActivityToStudent,
   fetchActivitiesByStudentId,
   removeActivityFromStudent,
+  fetchActivitiesByTrainerId,
+  assignActivityToTrainer,
+  removeActivityFromTrainer,
 } from "../services/activities";
 
 const ViewActivity = ({ userType = "" }) => {
   const queryClient = useQueryClient();
-  const { id: studentId } = useParams();
+  const { id: userId } = useParams();
   const [selectedActivityId, setSelectedActivityId] = useState("");
 
+  // Fetch all activities
   const {
     data: allActivities = [],
     isLoading: isLoadingActivities,
@@ -24,43 +28,58 @@ const ViewActivity = ({ userType = "" }) => {
     staleTime: 1000 * 60 * 5,
   });
 
+  // Fetch user-specific activities based on userType
   const {
-    data: studentActivitiesResponse = { activities: [], studentId: null },
-    isLoading: isLoadingStudentActivities,
-    isError: isStudentActivitiesError,
+    data: userActivitiesResponse = { activities: [], userId: null },
+    isLoading: isLoadingUserActivities,
+    isError: isUserActivitiesError,
   } = useQuery({
-    queryKey: ["studentActivities", studentId],
-    queryFn: () => fetchActivitiesByStudentId(studentId),
+    queryKey: [`${userType}Activities`, userId],
+    queryFn: () =>
+      userType === "student"
+        ? fetchActivitiesByStudentId(userId)
+        : fetchActivitiesByTrainerId(userId),
     staleTime: 1000 * 60 * 5,
   });
 
-  const studentActivities = studentActivitiesResponse.activities;
+  const userActivities =
+    userType === "student"
+      ? userActivitiesResponse.activities || []
+      : userActivitiesResponse || [];
 
   // Mutation for assigning activity
   const { mutate: assignActivity, isPending: isAssigning } = useMutation({
     mutationFn: (activityId) =>
-      assignActivityToStudent({
-        studentId: Number(studentId),
-        activityId: Number(activityId),
-      }),
+      userType === "student"
+        ? assignActivityToStudent({
+            studentId: Number(userId),
+            activityId: Number(activityId),
+          })
+        : assignActivityToTrainer({
+            trainerId: Number(userId),
+            activityId: Number(activityId),
+            nationalIdNo: localStorage.getItem("nationalIdNo"),
+          }),
     onSuccess: () => {
       toast.success("Activity assigned successfully");
       setSelectedActivityId("");
-      queryClient.invalidateQueries(["studentActivities", studentId]);
+      queryClient.invalidateQueries([`${userType}Activities`, userId]);
     },
     onError: (error) => {
       toast.error(error.message || "Failed to assign activity");
     },
   });
 
+  // Mutation for removing activity
   const { mutate: removeActivity, isPending: isRemoving } = useMutation({
     mutationFn: (activityId) => {
-      console.log("Removing activity with ID:", activityId);
-      return removeActivityFromStudent(studentId, activityId);
+      return userType === "student"
+        ? removeActivityFromStudent(userId, activityId)
+        : removeActivityFromTrainer(userId, activityId);
     },
     onSuccess: () => {
       toast.success("Activity removed successfully");
-      queryClient.invalidateQueries(["studentActivities", studentId]);
+      queryClient.invalidateQueries([`${userType}Activities`, userId]);
     },
     onError: (error) => {
       console.error("Error removing activity:", error);
@@ -68,14 +87,14 @@ const ViewActivity = ({ userType = "" }) => {
     },
   });
 
-  // Only show available activities when both queries have completed
+  // Calculate available activities
   const availableActivities =
-    isLoadingActivities || isLoadingStudentActivities
+    isLoadingActivities || isLoadingUserActivities
       ? []
       : allActivities.filter(
           (activity) =>
-            !studentActivities.some(
-              (studentActivity) => studentActivity.id === activity.id
+            !userActivities.some(
+              (userActivity) => userActivity.id === activity.id
             )
         );
 
@@ -88,7 +107,6 @@ const ViewActivity = ({ userType = "" }) => {
   };
 
   const handleRemove = (activityId) => {
-    console.log("Removing activity with ID:", activityId);
     if (window.confirm("Are you sure you want to remove this activity?")) {
       removeActivity(activityId);
     }
@@ -96,19 +114,17 @@ const ViewActivity = ({ userType = "" }) => {
 
   return (
     <div className="p-4 border rounded shadow">
-      {userType === "student" ? (
-        <h2 className="text-lg font-bold mb-2">Student Activities</h2>
-      ) : (
-        <h2 className="text-lg font-bold mb-2">Trainer Activities</h2>
-      )}
+      <h2 className="text-lg font-bold mb-2">
+        {userType === "student" ? "Student Activities" : "Trainer Activities"}
+      </h2>
 
-      {isLoadingStudentActivities ? (
-        <p>Loading student's activities...</p>
-      ) : studentActivities.length === 0 ? (
+      {isLoadingUserActivities ? (
+        <p>Loading activities...</p>
+      ) : userActivities.length === 0 ? (
         <p className="text-gray-500">No activities assigned yet.</p>
       ) : (
         <ul className="mb-4 space-y-2">
-          {studentActivities.map((activity) => (
+          {userActivities.map((activity) => (
             <li
               key={activity.id}
               className="flex justify-between items-center p-2 bg-gray-50 rounded"
@@ -138,11 +154,11 @@ const ViewActivity = ({ userType = "" }) => {
           onChange={(e) => setSelectedActivityId(e.target.value)}
           className="border px-3 py-2 rounded flex-1"
           disabled={
-            isLoadingActivities || isLoadingStudentActivities || isAssigning
+            isLoadingActivities || isLoadingUserActivities || isAssigning
           }
         >
           <option value="">-- Select Activity to Assign --</option>
-          {isLoadingActivities || isLoadingStudentActivities ? (
+          {isLoadingActivities || isLoadingUserActivities ? (
             <option>Loading activities...</option>
           ) : isActivitiesError ? (
             <option>Error loading activities</option>
@@ -159,7 +175,7 @@ const ViewActivity = ({ userType = "" }) => {
           onClick={handleAssign}
           className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
           disabled={
-            !selectedActivityId || isAssigning || isLoadingStudentActivities
+            !selectedActivityId || isAssigning || isLoadingUserActivities
           }
         >
           {isAssigning ? "Assigning..." : "Assign"}
