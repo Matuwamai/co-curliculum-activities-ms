@@ -3,12 +3,25 @@ import prisma from "../config/db.js";
 // Create a new activity
 export const createActivity = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description, trainerId: userId } = req.body;
+
+    console.log("User id (passed as trainerId) from client:", userId);
+
+    const trainer = await prisma.trainer.findUnique({
+      where: { userId: Number(userId) },
+    });
+
+    if (!trainer) {
+      return res
+        .status(400)
+        .json({ message: "Trainer not found for the provided userId" });
+    }
 
     const newActivity = await prisma.activity.create({
       data: {
         name,
         description,
+        trainerId: trainer.id,
       },
     });
 
@@ -79,8 +92,6 @@ export const updateActivity = async (req, res) => {
 // Assign an existing activity to an existing student
 export const assignActivityToStudent = async (req, res) => {
   const { studentId, activityId } = req.body;
-  console.log("Student ID creating:", studentId);
-  console.log("Activity ID:", activityId);
   if (!studentId || !activityId) {
     return res
       .status(400)
@@ -99,7 +110,6 @@ export const assignActivityToStudent = async (req, res) => {
     const studentRecord = await prisma.student.findUnique({
       where: { userId: Number(studentId) },
     });
-    console.log("Student record:", studentRecord);
 
     if (!studentRecord) {
       return res.status(404).json({ message: "Student record not found" });
@@ -155,10 +165,6 @@ export const getActivitiesByStudentId = async (req, res) => {
     const studentRecord = await prisma.student.findUnique({
       where: { userId: Number(studentId) },
     });
-    console.log(
-      "Student record when fetching activities by Id:",
-      studentRecord
-    );
 
     if (!studentRecord) {
       return res.status(404).json({ message: "Student not found" });
@@ -176,7 +182,6 @@ export const getActivitiesByStudentId = async (req, res) => {
         .status(404)
         .json({ message: "No activities found for this student" });
     }
-    console.log("Activities found:", activities);
     res.status(200).json({
       studentId: studentRecord.id,
       activities: activities.map((activity) => activity.activity),
@@ -206,8 +211,6 @@ export const deleteActivity = async (req, res) => {
 // Delete activity for a student
 export const deleteActivityFromStudent = async (req, res) => {
   const { studentId, activityId } = req.params;
-  console.log("Student ID in deleting activity:", studentId);
-  console.log("Activity ID in deleting activity:", activityId);
 
   if (!studentId || !activityId) {
     return res
@@ -234,6 +237,140 @@ export const deleteActivityFromStudent = async (req, res) => {
     res.status(200).json({ message: "Activity removed from student" });
   } catch (error) {
     console.error("Error removing activity from student:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const assignActivityToTrainer = async (req, res) => {
+  const { trainerId, activityId, nationalIdNo } = req.body;
+
+  if (!trainerId || !activityId) {
+    return res
+      .status(400)
+      .json({ message: "trainerId and activityId are required" });
+  }
+
+  try {
+    const trainer = await prisma.user.findUnique({
+      where: { id: Number(trainerId) },
+    });
+
+    if (!trainer) {
+      return res.status(404).json({ message: "Trainer not found" });
+    }
+
+    const trainerRecord = await prisma.trainer.findUnique({
+      where: { userId: Number(trainerId) },
+    });
+
+    if (!trainerRecord) {
+      return res.status(404).json({ message: "Trainer record not found" });
+    }
+
+    const activity = await prisma.activity.findUnique({
+      where: { id: Number(activityId) },
+    });
+
+    if (!activity) {
+      return res.status(404).json({ message: "Activity not found" });
+    }
+
+    // const existingAssignment = await prisma.activity.findFirst({
+    //   where: {
+    //     trainerId: trainerRecord.id,
+    //     id: Number(activityId),
+    //   },
+    // });
+
+    if (activity?.trainerId && activity.trainerId !== trainerRecord.id) {
+      return res
+        .status(409)
+        .json({ message: "Activity already assigned to a trainer" });
+    }
+
+    if (nationalIdNo && trainerRecord.nationalIdNo !== nationalIdNo) {
+      await prisma.trainer.update({
+        where: { userId: Number(trainerId) },
+        data: { nationalIdNo: nationalIdNo },
+      });
+    }
+
+    await prisma.activity.update({
+      where: { id: Number(activityId) },
+      data: {
+        trainer: {
+          connect: { id: trainerRecord.id },
+        },
+      },
+    });
+
+    res
+      .status(201)
+      .json({ message: "Activity assigned to trainer successfully" });
+  } catch (error) {
+    console.error("Error assigning activity to trainer:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getActivitiesByTrainerId = async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(400).json({ message: "TrainerId is required" });
+  }
+
+  try {
+    const trainer = await prisma.trainer.findUnique({
+      where: { userId: Number(id) },
+    });
+
+    if (!trainer) {
+      return res.status(404).json({ message: "Trainer not found" });
+    }
+
+    const activities = await prisma.activity.findMany({
+      where: { trainerId: trainer.id },
+    });
+
+    res.status(200).json(activities);
+  } catch (error) {
+    console.error("Error fetching activities for trainer:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Delete activity for a trainer
+export const deleteActivityFromTrainer = async (req, res) => {
+  const { trainerId, activityId } = req.params;
+
+  if (!trainerId || !activityId) {
+    return res
+      .status(400)
+      .json({ message: "trainerId and activityId are required" });
+  }
+
+  try {
+    const trainerRecord = await prisma.trainer.findUnique({
+      where: { userId: Number(trainerId) },
+    });
+
+    if (!trainerRecord) {
+      return res.status(404).json({ message: "Trainer not found" });
+    }
+
+    await prisma.activity.update({
+      where: {
+        id: Number(activityId),
+      },
+      data: {
+        trainerId: null,
+      },
+    });
+
+    res.status(200).json({ message: "Activity removed from trainer" });
+  } catch (error) {
+    console.error("Error removing activity from trainer:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
