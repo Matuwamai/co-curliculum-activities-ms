@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { fetchActivities } from "../services/activities";
 import { createSchedule } from "../services/schedules";
@@ -14,6 +15,7 @@ const daysOfWeek = [
 ];
 
 const CreateSchedulePage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     activityId: "",
     day: "",
@@ -41,6 +43,7 @@ const CreateSchedulePage = () => {
         startTime: "",
         endTime: "",
       });
+      navigate("/trainning-schedules");
     },
     onError: (error) => {
       alert("Something went wrong!");
