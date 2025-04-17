@@ -10,7 +10,7 @@ const columns = [
     width: 250,
     renderCell: (params) => {
       return (
-        <h6 className='text-gray-600 uppercase my-auto'>
+        <h6 className="text-gray-600 uppercase my-auto">
           {params.row.startTime} - {params.row.endTime}
         </h6>
       );
@@ -22,7 +22,7 @@ const columns = [
     width: 100,
     renderCell: (params) => {
       return (
-        <h6 className='text-gray-600 uppercase my-auto'>
+        <h6 className="text-gray-600 uppercase my-auto">
           {params.row.mondaySchedule}
         </h6>
       );
@@ -34,7 +34,7 @@ const columns = [
     width: 100,
     renderCell: (params) => {
       return (
-        <h6 className='text-gray-600 uppercase my-auto'>
+        <h6 className="text-gray-600 uppercase my-auto">
           {params.row.tuesdaySchedule}
         </h6>
       );
@@ -46,7 +46,7 @@ const columns = [
     width: 100,
     renderCell: (params) => {
       return (
-        <h6 className='text-gray-600 uppercase my-auto'>
+        <h6 className="text-gray-600 uppercase my-auto">
           {params.row.wednesdaySchedule}
         </h6>
       );
@@ -58,7 +58,7 @@ const columns = [
     width: 100,
     renderCell: (params) => {
       return (
-        <h6 className='text-gray-600 uppercase my-auto'>
+        <h6 className="text-gray-600 uppercase my-auto">
           {params.row.thursdaySchedule}
         </h6>
       );
@@ -70,16 +70,16 @@ const columns = [
     width: 100,
     renderCell: (params) => {
       return (
-        <h6 className='text-gray-600 uppercase my-auto'>
+        <h6 className="text-gray-600 uppercase my-auto">
           {params.row.fridaySchedule}
         </h6>
       );
     },
-  }
+  },
 ];
 
 const data = [
-{
+  {
     id: 1,
     startTime: "08:00 AM",
     endTime: "09:00 AM",
@@ -88,8 +88,8 @@ const data = [
     wednesdaySchedule: "Strength Training",
     thursdaySchedule: "Pilates",
     fridaySchedule: "Zumba",
-},
-{
+  },
+  {
     id: 2,
     startTime: "09:00 AM",
     endTime: "10:00 AM",
@@ -98,8 +98,8 @@ const data = [
     wednesdaySchedule: "CrossFit",
     thursdaySchedule: "Spin Class",
     fridaySchedule: "Aerobics",
-},
-{
+  },
+  {
     id: 3,
     startTime: "10:00 AM",
     endTime: "11:00 AM",
@@ -108,16 +108,16 @@ const data = [
     wednesdaySchedule: "Circuit Training",
     thursdaySchedule: "Dance",
     fridaySchedule: "Swimming",
-}
+  },
 ];
 
 const TrainningSchedulePage = () => {
   return (
     <div>
       <PageHeader
-        title='Trainning Schedules'
-        btnText='Add Schedule'
-        btnLink='/trainning-schedules/new'
+        title="Trainning Schedules"
+        btnText="Add Schedule"
+        btnLink="/trainning-schedules/create"
       />
       <DataTable data={data} columns={columns} />
     </div>
