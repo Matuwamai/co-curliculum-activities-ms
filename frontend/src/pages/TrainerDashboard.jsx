@@ -7,11 +7,11 @@ import {
   FiCalendar,
   FiPlus,
 } from "react-icons/fi";
-import TrainerHeader from "./TrainerHeader";
-import TrainerFooter from "./TrainerFooter";
-import ActivityList from "./ActivityList";
-import StudentCommentsModal from "./StudentCommentsModal";
-import CreateAnnouncementModal from "./CreateAnnouncementModal";
+import TrainerHeader from "../components/TrainerHeader";
+import TrainerFooter from "../components/TrainerFooter";
+import ActivityList from "../components/ActivityList";
+import StudentCommentsModal from "../components/StudentCommentsModal";
+import CreateAnnouncementModal from "../components/CreateAnnouncementModal";
 
 const TrainerDashboard = () => {
   // Dummy data for activities
@@ -121,9 +121,6 @@ const TrainerDashboard = () => {
       <main className="flex-1 p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-4 md:mb-0">
-              Trainer Dashboard
-            </h1>
             <button
               onClick={() => setShowAnnouncementModal(true)}
               className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200"
