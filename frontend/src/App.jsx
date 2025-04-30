@@ -17,6 +17,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import EditActivityPage from "./pages/EditActivityPage";
 import EditStudentPage from "./pages/EditStudentPage";
 import EditTrainerPage from "./pages/EditTrainerPage";
+import TrainerDashboard from "./pages/TrainerDashboard";
 
 export default function App() {
   return (
@@ -25,6 +26,8 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/trainer-dashboard" element={<TrainerDashboard />} />
+
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />

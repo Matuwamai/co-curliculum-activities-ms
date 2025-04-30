@@ -39,6 +39,7 @@ const columns = [
       <span className="text-gray-700">{params.row.endTime}</span>
     ),
   },
+
   {
     field: "trainerName",
     headerName: "Trainer Name",

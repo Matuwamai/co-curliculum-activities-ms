@@ -34,7 +34,23 @@ export const fetchSchedules = async () => {
         Authorization: `Bearer ${token}`,
       },
     });
-    return data;
+    const formattedData = data.map((item) => {
+      const formatTime = (datetime) => {
+        const date = new Date(datetime);
+        return date.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
+      };
+      return {
+        ...item,
+        startTime: formatTime(item.startTime),
+        endTime: formatTime(item.endTime),
+        day: item.day.toUpperCase(),
+      };
+    });
+    return formattedData;
   } catch (error) {
     console.error("Error fetching schedules:", error);
     const errorMessage = error.response
