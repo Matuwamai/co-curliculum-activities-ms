@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FiActivity,
   FiUsers,
@@ -12,77 +12,56 @@ import TrainerFooter from "../components/TrainerFooter";
 import ActivityList from "../components/ActivityList";
 import StudentCommentsModal from "../components/StudentCommentsModal";
 import CreateAnnouncementModal from "../components/CreateAnnouncementModal";
+import { useQuery } from "@tanstack/react-query";
+import { fetchActivitiesByTrainerId } from "../services/activities";
+import { fetchStudentsByTrainerId } from "../services/studentTrainer";
 
 const TrainerDashboard = () => {
-  // Dummy data for activities
-  const [activities, setActivities] = useState([
-    {
-      id: 1,
-      name: "Basketball Training",
-      date: "2023-06-15",
-      time: "16:00 - 18:00",
-      location: "Main Court",
-      students: [
-        { id: 101, name: "John Doe", attendance: "present", comment: "" },
-        {
-          id: 102,
-          name: "Jane Smith",
-          attendance: "absent",
-          comment: "Injured ankle",
-        },
-        { id: 103, name: "Mike Johnson", attendance: "present", comment: "" },
-      ],
-    },
-    {
-      id: 2,
-      name: "Football Practice",
-      date: "2023-06-16",
-      time: "14:00 - 16:00",
-      location: "Field A",
-      students: [
-        { id: 201, name: "Alex Brown", attendance: "present", comment: "" },
-        {
-          id: 202,
-          name: "Sarah Wilson",
-          attendance: "present",
-          comment: "Needs more stamina training",
-        },
-      ],
-    },
-    {
-      id: 3,
-      name: "Swimming Session",
-      date: "2023-06-17",
-      time: "10:00 - 12:00",
-      location: "Olympic Pool",
-      students: [
-        {
-          id: 301,
-          name: "David Lee",
-          attendance: "present",
-          comment: "Excellent technique",
-        },
-        { id: 302, name: "Emily Chen", attendance: "present", comment: "" },
-        {
-          id: 303,
-          name: "Robert Taylor",
-          attendance: "absent",
-          comment: "Family emergency",
-        },
-        {
-          id: 304,
-          name: "Olivia Martinez",
-          attendance: "present",
-          comment: "",
-        },
-      ],
-    },
-  ]);
+  const [activities, setActivities] = useState([]);
+  const [students, setStudents] = useState([]);
 
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showCommentsModal, setShowCommentsModal] = useState(false);
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  const trainerId = user.id;
+  const {
+    data: activityData,
+    error: activityError,
+    isLoading: activityLoading,
+  } = useQuery({
+    queryKey: ["activities"],
+    queryFn: () => fetchActivitiesByTrainerId(trainerId),
+  });
+
+  useEffect(() => {
+    if (activityData) {
+      setActivities(activityData);
+    }
+  }, [activityData]);
+  const {
+    data,
+    error: student,
+    isLoading: studentLoading,
+  } = useQuery({
+    queryKey: ["students"],
+    queryFn: () => fetchStudentsByTrainerId(user.id),
+  });
+
+  useEffect(() => {
+    if (data) {
+      console.log("studentData", data);
+      setStudents(data);
+    }
+  }, [data]);
+
+  if (activityLoading) return <p> Activity Loading...</p>;
+  if (activityError)
+    return <p>Error fetching activities: {activityError.message}</p>;
+  if (studentLoading) return <p> Student Loading...</p>;
+  if (student) return <p>Error fetching students: {student.message}</p>;
 
   const handleStudentSelect = (activity, student) => {
     setSelectedActivity(activity);
@@ -140,10 +119,7 @@ const TrainerDashboard = () => {
             <DashboardCard
               icon={<FiUsers className="text-green-600" size={24} />}
               title="Total Students"
-              value={activities.reduce(
-                (sum, activity) => sum + activity.students.length,
-                0
-              )}
+              value={students.length}
               className="bg-white"
             />
             <DashboardCard
@@ -158,6 +134,7 @@ const TrainerDashboard = () => {
 
           <ActivityList
             activities={activities}
+            students={students}
             onStudentSelect={handleStudentSelect}
           />
         </div>
