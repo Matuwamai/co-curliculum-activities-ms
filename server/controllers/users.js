@@ -153,10 +153,17 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
     if (!user.password) {
+      console.log("user", user.role);
       return res.status(401).json({
-        message: "Password not set. Please set your password to continue",
+        message: "Password not set. Redirecting to set password ...",
+        redirect: true,
+        token,
+        userId: user.id,
+        userType: user.role,
       });
     }
 
@@ -164,9 +171,6 @@ export const login = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
 
     const userData = {
       id: user.id,
@@ -239,6 +243,7 @@ export const getUser = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { userType } = req.query;
+    console.log("userType", userType);
     console.log("req body", req.body);
     const { id } = req.params;
     if (!["student", "trainer"].includes(userType)) {
@@ -256,6 +261,7 @@ export const updateUser = async (req, res) => {
           id: Number(id),
         },
       });
+      console.log("existingUser", existingUser.student);
 
       if (!existingUser)
         return res.status(404).json({ message: "Student not found" });
@@ -274,7 +280,7 @@ export const updateUser = async (req, res) => {
           password: hashedPassword || existingUser.password,
           student: {
             update: {
-              parentName: parentName || existingUser.student.parentName,
+              parentName: parentName || existingUser.student?.parentName,
             },
           },
         },
