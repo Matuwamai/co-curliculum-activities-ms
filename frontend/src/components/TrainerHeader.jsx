@@ -16,9 +16,15 @@ const TrainerHeader = () => {
 
   // Dummy trainer data
   const trainer = {
-    name: "Coach Michael",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-    role: "Head Basketball Trainer",
+    name: "Coach Rombo",
+    avatar: "https://cdn-icons-png.flaticon.com/512/7915/7915522.png",
+    role: "Head Coach",
+  };
+
+  const handleSignOut = () => {
+    window.localStorage.removeItem("user");
+    window.localStorage.removeItem("token");
+    window.location.href = "/login";
   };
 
   return (
@@ -37,12 +43,12 @@ const TrainerHeader = () => {
 
             {/* Logo/Brand */}
             <div className="flex-shrink-0 flex items-center">
-              <Link to="/dashboard" className="flex items-center">
+              <Link to="/trainer-dashboard" className="flex items-center">
                 <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold">
                   SA
                 </div>
                 <span className="ml-3 text-xl font-bold text-gray-800 hidden sm:block">
-                  Sports Academy
+                  E-Sports Academy
                 </span>
               </Link>
             </div>
@@ -145,7 +151,7 @@ const TrainerHeader = () => {
                       <FiSettings className="mr-2" /> Settings
                     </Link>
                     <Link
-                      to="/logout"
+                      onClick={handleSignOut}
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 border-t border-gray-100"
                     >
                       <FiLogOut className="mr-2" /> Sign out
@@ -219,7 +225,7 @@ const TrainerHeader = () => {
                 Settings
               </Link>
               <Link
-                to="/logout"
+                onClick={handleSignOut}
                 className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
               >
                 Sign out

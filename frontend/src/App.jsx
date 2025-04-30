@@ -18,6 +18,7 @@ import EditActivityPage from "./pages/EditActivityPage";
 import EditStudentPage from "./pages/EditStudentPage";
 import EditTrainerPage from "./pages/EditTrainerPage";
 import TrainerDashboard from "./pages/TrainerDashboard";
+import SetPassword from "./pages/SetPassword";
 
 export default function App() {
   return (
@@ -26,9 +27,11 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/trainer-dashboard" element={<TrainerDashboard />} />
+        <Route path="/set-password" element={<SetPassword />} />
 
         <Route element={<ProtectedRoute />}>
+          <Route path="/trainer-dashboard" element={<TrainerDashboard />} />
+
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/activities" element={<ActivitiesPage />} />
@@ -52,6 +55,7 @@ export default function App() {
           </Route>
         </Route>
       </Routes>
+      {/* <Route path="/trainer-dashboard" element={<TrainerDashboard />} /> */}
     </Router>
   );
 }

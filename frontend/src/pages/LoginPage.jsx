@@ -32,20 +32,37 @@ const LoginPage = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    setError(null); // Clear previous errors
+    setError(null);
     loginMutation.mutate(userData, {
       onSuccess: (data) => {
         const { user, token } = data;
         login(user, token);
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("token", token);
-        window.location.href = "/dashboard";
+        if (user.role === "ADMIN") {
+          window.location.href = "/dashboard";
+        } else if (user.role === "TRAINER") {
+          window.location.href = "/trainer-dashboard";
+        }
       },
       onError: (error) => {
-        const errorMessage = error.response
-          ? error.response.data.message
-          : "An error occurred";
-        setError(errorMessage);
+        const res = error.response;
+        console.log("Error res", res);
+
+        if (res?.status === 401 && res?.data?.redirect) {
+          const { token, userId, userType } = res.data;
+
+          if (userType)
+            localStorage.setItem("userType", userType.toLowerCase());
+          if (token) localStorage.setItem("token", token);
+          if (userId) localStorage.setItem("userId", userId);
+
+          console.log("token and userId and userType", token, userId, userType);
+          window.location.href = "/set-password";
+        } else {
+          const errorMessage = res?.data?.message;
+          setError(errorMessage);
+        }
       },
     });
   };
