@@ -11,6 +11,7 @@ import {
   getActivitiesByTrainerId,
   deleteActivityFromStudent,
   deleteActivityFromTrainer,
+  getStudentsByTrainerId,
 } from "../controllers/activities.js";
 
 const router = express.Router();
@@ -29,5 +30,6 @@ router.delete(
   "/remove/trainer/:trainerId/:activityId",
   deleteActivityFromTrainer
 );
+router.get("/students/activity/:id", getStudentsByTrainerId);
 
 export default router;

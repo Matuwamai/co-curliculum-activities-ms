@@ -243,8 +243,6 @@ export const getUser = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { userType } = req.query;
-    console.log("userType", userType);
-    console.log("req body", req.body);
     const { id } = req.params;
     if (!["student", "trainer"].includes(userType)) {
       return res.status(400).json({ message: "Invalid user type" });
@@ -261,7 +259,6 @@ export const updateUser = async (req, res) => {
           id: Number(id),
         },
       });
-      console.log("existingUser", existingUser.student);
 
       if (!existingUser)
         return res.status(404).json({ message: "Student not found" });

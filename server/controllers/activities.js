@@ -332,11 +332,63 @@ export const getActivitiesByTrainerId = async (req, res) => {
     const activities = await prisma.activity.findMany({
       where: { trainerId: trainer.id },
     });
-
     res.status(200).json(activities);
   } catch (error) {
-    console.error("Error fetching activities for trainer:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getStudentsByTrainerId = async (req, res) => {
+  const { userId } = req.query;
+  console.log("Trainer UserID:", userId);
+
+  if (!userId) {
+    return res.status(400).json({ message: "trainerId is required" });
+  }
+
+  try {
+    const trainer = await prisma.trainer.findUnique({
+      where: { userId: Number(userId) },
+    });
+
+    if (!trainer) {
+      return res.status(404).json({ message: "Trainer not found" });
+    }
+
+    const activities = await prisma.activity.findMany({
+      where: { trainerId: trainer.id },
+      include: {
+        students: {
+          include: {
+            student: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const allStudents = activities.flatMap((activity) =>
+      activity.students.map((sa) => ({
+        ...sa.student,
+        activity: activity.name,
+        activityDate: activity.date,
+      }))
+    );
+
+    const uniqueStudentsMap = new Map();
+    allStudents.forEach((student) => {
+      uniqueStudentsMap.set(student.id, student);
+    });
+
+    const uniqueStudents = Array.from(uniqueStudentsMap.values());
+
+    res.json(uniqueStudents);
+  } catch (err) {
+    console.error("Error fetching students:", err);
+    res.status(500).json({ message: "Failed to fetch students" });
   }
 };
 
