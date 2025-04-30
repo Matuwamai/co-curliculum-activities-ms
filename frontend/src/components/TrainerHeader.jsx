@@ -15,11 +15,14 @@ const TrainerHeader = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Dummy trainer data
-  const trainer = {
-    name: "Coach Rombo",
-    avatar: "https://cdn-icons-png.flaticon.com/512/7915/7915522.png",
-    role: "Head Coach",
-  };
+  const user = localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user"))
+    : {
+        name: "John Doe",
+        role: "Trainer",
+      };
+  const avatar = "https://cdn-icons-png.flaticon.com/512/7915/7915522.png";
+  const lastName = user.fullName.split(" ").slice(-1)[0];
 
   const handleSignOut = () => {
     window.localStorage.removeItem("user");
@@ -109,14 +112,14 @@ const TrainerHeader = () => {
                     <div className="flex items-center">
                       <img
                         className="h-8 w-8 rounded-full"
-                        src={trainer.avatar}
-                        alt={trainer.name}
+                        src={avatar}
+                        alt={user.fullName}
                       />
                       <div className="ml-2 hidden md:block text-left">
                         <p className="text-sm font-medium text-gray-700">
-                          {trainer.name}
+                          {user.fullName}
                         </p>
-                        <p className="text-xs text-gray-500">{trainer.role}</p>
+                        <p className="text-xs text-gray-500">{user.role}</p>
                       </div>
                       <FiChevronDown
                         className={`ml-1 text-gray-400 transition-transform duration-200 ${
@@ -132,10 +135,10 @@ const TrainerHeader = () => {
                   <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                     <div className="px-4 py-2 border-b border-gray-100">
                       <p className="text-sm font-medium text-gray-800">
-                        {trainer.name}
+                        {lastName}
                       </p>
                       <p className="text-xs text-gray-500 truncate">
-                        {trainer.role}
+                        {user.role.toLowerCase()}
                       </p>
                     </div>
                     <Link
