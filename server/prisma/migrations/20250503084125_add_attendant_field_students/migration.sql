@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `students` ADD COLUMN `attendant` ENUM('PRESENT', 'ABSENT') NOT NULL DEFAULT 'PRESENT';

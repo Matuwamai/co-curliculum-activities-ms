@@ -68,6 +68,7 @@ model Student {
   id         Int    @id @default(autoincrement())
   parentName String
   userId     Int    @unique
+  attendant  ATTENDANT @default(PRESENT)
   user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   activity   StudentActivity[]
   comment    Comment[]
@@ -136,4 +137,9 @@ enum ROLE {
   ADMIN
   TRAINER
   STUDENT
+}
+
+enum ATTENDANT {
+  PRESENT
+  ABSENT
 }
