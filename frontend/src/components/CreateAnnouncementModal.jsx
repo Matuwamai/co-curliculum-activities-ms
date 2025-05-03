@@ -1,12 +1,33 @@
 import React, { useState } from "react";
 import { FiX } from "react-icons/fi";
+import { useMutation } from "@tanstack/react-query";
+import { createAnnouncement } from "../services/announcements";
 
-const CreateAnnouncementModal = ({ activities, onClose, onCreate }) => {
+const CreateAnnouncementModal = ({
+  activities,
+  onClose,
+  onCreate,
+  setNoticeMessage,
+}) => {
   const [announcement, setAnnouncement] = useState({
     activityId: activities.length > 0 ? activities[0].id : "",
+    userId: JSON.parse(localStorage.getItem("user")).id,
     title: "",
-    message: "",
+    announcement: "",
     urgent: false,
+  });
+
+  const createAnnouncementMutation = useMutation({
+    mutationFn: (announcement) => createAnnouncement(announcement),
+    onSuccess: (data) => {
+      setNoticeMessage("Announcement created successfully!");
+      onCreate(data);
+      onClose();
+    },
+    onError: (error) => {
+      console.error("Error creating announcement:", error);
+      alert("Failed to create announcement. Please try again.");
+    },
   });
 
   const handleChange = (e) => {
@@ -17,6 +38,8 @@ const CreateAnnouncementModal = ({ activities, onClose, onCreate }) => {
     }));
   };
 
+  console.log("Announcement state:", announcement);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const selectedActivity = activities.find(
@@ -24,13 +47,15 @@ const CreateAnnouncementModal = ({ activities, onClose, onCreate }) => {
     );
     onCreate({
       ...announcement,
-      activityName: selectedActivity?.name || "All Activities",
+      activityName: selectedActivity?.name,
+      activityId: parseInt(selectedActivity?.activityId),
       date: new Date().toISOString(),
     });
+    createAnnouncementMutation.mutate(announcement);
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-transparent bg-black/10 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl">
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
@@ -116,10 +141,10 @@ const CreateAnnouncementModal = ({ activities, onClose, onCreate }) => {
                 Message
               </label>
               <textarea
-                id="message"
-                name="message"
+                id="announcement"
+                name="announcement"
                 rows="5"
-                value={announcement.message}
+                value={announcement.announcement}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter your announcement message..."

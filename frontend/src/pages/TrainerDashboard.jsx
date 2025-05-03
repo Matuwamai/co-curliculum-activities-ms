@@ -18,6 +18,7 @@ import { fetchStudentsByTrainerId } from "../services/studentTrainer";
 
 const TrainerDashboard = () => {
   const [activities, setActivities] = useState([]);
+  const [noticeMessage, setNoticeMessage] = useState("");
   const [comments, setComments] = useState([]);
   const [students, setStudents] = useState([]);
 
@@ -93,10 +94,24 @@ const TrainerDashboard = () => {
     }, 3000);
     setShowCommentsModal(false);
   };
-
   const createAnnouncement = (announcement) => {
-    // In a real app, this would send to backend
-    console.log("New announcement:", announcement);
+    setActivities((prevActivities) =>
+      prevActivities.map((activity) =>
+        activity.id === announcement.activityId
+          ? {
+              ...activity,
+              announcements: [
+                ...(activity.announcements || []),
+                { ...announcement },
+              ],
+            }
+          : activity
+      )
+    );
+    setShowCommentNotice(true);
+    setTimeout(() => {
+      setShowCommentNotice(false);
+    }, 3000);
     setShowAnnouncementModal(false);
   };
 
@@ -155,7 +170,7 @@ const TrainerDashboard = () => {
           activity={selectedActivity}
           student={selectedStudent}
           comments={comments}
-          showCommentNotice={showCommentNotice}
+          setNoticeMessage={setNoticeMessage}
           onClose={() => setShowCommentsModal(false)}
           onSave={saveComment}
         />
@@ -164,13 +179,14 @@ const TrainerDashboard = () => {
       {showAnnouncementModal && (
         <CreateAnnouncementModal
           activities={activities}
+          setNoticeMessage={setNoticeMessage}
           onClose={() => setShowAnnouncementModal(false)}
           onCreate={createAnnouncement}
         />
       )}
       {showCommentNotice && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-100 text-green-800 px-4 py-2 rounded shadow z-50">
-          You've created a new comment!
+          {noticeMessage}
         </div>
       )}
     </div>

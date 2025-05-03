@@ -7,14 +7,14 @@ const StudentCommentsModal = ({
   student,
   onClose,
   onSave,
-  showCommentNotice,
+  setNoticeMessage,
 }) => {
   const [comment, setComment] = useState("");
 
   const createMutationComment = useMutation({
     mutationFn: (commentData) => createComment(commentData),
     onSuccess: (data) => {
-      console.log("Comment created successfully:", data);
+      setNoticeMessage("Comment created successfully!");
       onSave(data);
       setComment("");
     },
@@ -37,12 +37,6 @@ const StudentCommentsModal = ({
       activityId: activity.id,
       comment: comment,
     });
-    setShowCommentNotice(true);
-    setTimeout(() => {
-      setShowCommentNotice(false);
-    }, 3000);
-    setComment("");
-    onClose();
   };
 
   return (
