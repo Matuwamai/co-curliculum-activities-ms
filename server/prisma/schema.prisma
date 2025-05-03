@@ -114,6 +114,7 @@ model Announcement {
   announcement String
   activityId Int
   trainerId Int
+  urgent AnnouncementUrgency @default(FALSE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -142,4 +143,9 @@ enum ROLE {
 enum ATTENDANT {
   PRESENT
   ABSENT
+}
+
+enum AnnouncementUrgency {
+  TRUE
+  FALSE
 }
