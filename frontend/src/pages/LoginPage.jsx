@@ -43,6 +43,8 @@ const LoginPage = () => {
           window.location.href = "/dashboard";
         } else if (user.role === "TRAINER") {
           window.location.href = "/trainer-dashboard";
+        } else if (user.role === "STUDENT") {
+          window.location.href = "/student-dashboard";
         }
       },
       onError: (error) => {

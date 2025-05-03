@@ -7,8 +7,8 @@ import {
   FiCalendar,
   FiPlus,
 } from "react-icons/fi";
-import TrainerHeader from "../components/TrainerHeader";
-import TrainerFooter from "../components/TrainerFooter";
+import UserHeader from "../components/UserHeader";
+import UserFooter from "../components/UserFooter";
 import ActivityList from "../components/ActivityList";
 import StudentCommentsModal from "../components/StudentCommentsModal";
 import CreateAnnouncementModal from "../components/CreateAnnouncementModal";
@@ -102,7 +102,7 @@ const TrainerDashboard = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <TrainerHeader />
+      <UserHeader role="trainer" />
 
       <main className="flex-1 p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
@@ -147,7 +147,7 @@ const TrainerDashboard = () => {
         </div>
       </main>
 
-      <TrainerFooter />
+      <UserFooter />
 
       {/* Modals */}
       {showCommentsModal && (

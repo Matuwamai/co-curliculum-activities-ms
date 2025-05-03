@@ -10,7 +10,7 @@ import {
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
 
-const TrainerHeader = () => {
+const UserHeader = ({ role }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -22,7 +22,10 @@ const TrainerHeader = () => {
         role: "Trainer",
       };
   const avatar = "https://cdn-icons-png.flaticon.com/512/7915/7915522.png";
-  const lastName = user.fullName.split(" ").slice(-1)[0];
+  const lastName =
+    typeof user?.fullName === "string" && user.fullName.trim()
+      ? user.fullName.trim().split(" ").slice(-1)[0]
+      : "";
 
   const handleSignOut = () => {
     window.localStorage.removeItem("user");
@@ -46,7 +49,13 @@ const TrainerHeader = () => {
 
             {/* Logo/Brand */}
             <div className="flex-shrink-0 flex items-center">
-              <Link to="/trainer-dashboard" className="flex items-center">
+              <Link
+                to={
+                  role === "trainer"
+                    ? "/trainer-dashboard"
+                    : "/student-dashboard"
+                }
+              >
                 <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold">
                   SA
                 </div>
@@ -241,4 +250,4 @@ const TrainerHeader = () => {
   );
 };
 
-export default TrainerHeader;
+export default UserHeader;

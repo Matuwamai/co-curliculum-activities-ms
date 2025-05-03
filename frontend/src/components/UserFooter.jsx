@@ -7,7 +7,7 @@ import {
   FiYoutube,
 } from "react-icons/fi";
 
-const TrainerFooter = () => {
+const UserFooter = () => {
   return (
     <footer className="bg-gray-800 text-white pt-12 pb-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -159,4 +159,4 @@ const TrainerFooter = () => {
   );
 };
 
-export default TrainerFooter;
+export default UserFooter;
