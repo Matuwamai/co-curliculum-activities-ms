@@ -2,7 +2,7 @@ import prisma from "../config/db.js";
 
 export const createAnnouncement = async (req, res) => {
   try {
-    const { activityId, userId, title, annoucement } = req.body;
+    const { activityId, userId, title, announcement } = req.body;
 
     console.log("user id in comments:", userId);
 
@@ -15,17 +15,17 @@ export const createAnnouncement = async (req, res) => {
       return res.status(404).json({ message: "Trainer not found" });
     }
 
-    const newComment = await prisma.comment.create({
+    const newAnnouncement = await prisma.announcement.create({
       data: {
-        activityId,
+        activityId: parseInt(activityId, 10),
 
         trainerId: trainer.id,
-        annoucement,
+        announcement,
         title,
       },
     });
 
-    res.status(201).json(newComment);
+    res.status(201).json(newAnnouncement);
   } catch (error) {
     console.error("Error creating comment:", error);
     res.status(500).json({ message: "Internal server error" });
