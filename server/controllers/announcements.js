@@ -1,8 +1,8 @@
 import prisma from "../config/db.js";
 
-export const createComment = async (req, res) => {
+export const createAnnouncement = async (req, res) => {
   try {
-    const { activityId, userId, studentId, comment } = req.body;
+    const { activityId, userId, title, annoucement } = req.body;
 
     console.log("user id in comments:", userId);
 
@@ -18,9 +18,10 @@ export const createComment = async (req, res) => {
     const newComment = await prisma.comment.create({
       data: {
         activityId,
-        studentId,
+
         trainerId: trainer.id,
-        comment,
+        annoucement,
+        title,
       },
     });
 
@@ -31,20 +32,20 @@ export const createComment = async (req, res) => {
   }
 };
 
-export const getCommentsByStudentId = async (req, res) => {
-  console.log("Fetching comments for student ID:", req.params.studentId);
+export const getAnnouncementsByActivityId = async (req, res) => {
+  console.log("Fetching comments for student ID:", req.params.activityId);
   try {
-    const { studentId } = req.params;
-    const parsedStudentId = parseInt(studentId, 10);
+    const { activityId } = req.params;
+    const parsedActivityId = parseInt(activityId, 10);
 
     const comments = await prisma.comment.findMany({
-      where: { studentId: parsedStudentId },
+      where: { activityId: parsedActivityId },
       include: {
         activity: true,
       },
     });
     if (comments.length === 0) {
-      console.log("No comments found for student ID:", parsedStudentId);
+      console.log("No comments found for student ID:", parsedActivityId);
       return res.status(404).json({ message: "No comments found" });
     }
 
@@ -55,26 +56,16 @@ export const getCommentsByStudentId = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-export const deleteComment = async (req, res) => {
+export const deleteAnnouncement = async (req, res) => {
   try {
-    const { commentId } = req.params;
+    const { id } = req.params;
+    const parsedId = parseInt(id, 10);
 
-    // Check if the comment exists
-    const comment = await prisma.comment.findUnique({
-      where: { id: commentId },
+    const deletedComment = await prisma.comment.delete({
+      where: { id: parsedId },
     });
 
-    if (!comment) {
-      return res.status(404).json({ message: "Comment not found" });
-    }
-
-    // Delete the comment
-    await prisma.comment.delete({
-      where: { id: commentId },
-    });
-
-    res.status(200).json({ message: "Comment deleted successfully" });
+    res.status(200).json(deletedComment);
   } catch (error) {
     console.error("Error deleting comment:", error);
     res.status(500).json({ message: "Internal server error" });
