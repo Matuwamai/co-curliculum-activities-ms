@@ -52,7 +52,7 @@ const ActivityList = ({ activities, students, onStudentSelect }) => {
                     <div
                       key={student.id}
                       className={`p-3 rounded-lg border ${
-                        student.attendance === "present"
+                        student.attendant === "present"
                           ? "border-green-200 bg-green-50"
                           : "border-red-200 bg-red-50"
                       }`}
@@ -64,18 +64,18 @@ const ActivityList = ({ activities, students, onStudentSelect }) => {
                           </p>
                           <p
                             className={`text-xs ${
-                              student.attendance === "present"
+                              student.attendant === "present"
                                 ? "text-green-600"
                                 : "text-red-600"
                             }`}
                           >
-                            {student.attendance === "present"
+                            {student.attendant === "present"
                               ? "Present"
                               : "Absent"}
                           </p>
                         </div>
                         <button
-                          onClick={() => onStudentSelect(student)}
+                          onClick={() => onStudentSelect(activity, student)}
                           className="p-2 text-gray-500 hover:text-blue-600 rounded-full hover:bg-blue-50 transition duration-150"
                           title="Add comment"
                         >

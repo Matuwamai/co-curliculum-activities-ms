@@ -18,11 +18,13 @@ import { fetchStudentsByTrainerId } from "../services/studentTrainer";
 
 const TrainerDashboard = () => {
   const [activities, setActivities] = useState([]);
+  const [comments, setComments] = useState([]);
   const [students, setStudents] = useState([]);
 
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showCommentsModal, setShowCommentsModal] = useState(false);
+  const [showCommentNotice, setShowCommentNotice] = useState(false);
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user"));
@@ -52,8 +54,11 @@ const TrainerDashboard = () => {
 
   useEffect(() => {
     if (data) {
-      console.log("studentData", data);
-      setStudents(data);
+      const updatedData = data.map((student) => ({
+        ...student,
+        attendant: student.attendant.toLowerCase(),
+      }));
+      setStudents(updatedData);
     }
   }, [data]);
 
@@ -69,21 +74,23 @@ const TrainerDashboard = () => {
     setShowCommentsModal(true);
   };
 
-  const saveComment = (comment) => {
+  const saveComment = () => {
     setActivities((prevActivities) =>
       prevActivities.map((activity) =>
         activity.id === selectedActivity.id
           ? {
               ...activity,
-              students: activity.students.map((student) =>
-                student.id === selectedStudent.id
-                  ? { ...student, comment }
-                  : student
+              students: students.map((student) =>
+                student.id === selectedStudent.id ? { ...student } : student
               ),
             }
           : activity
       )
     );
+    setShowCommentNotice(true);
+    setTimeout(() => {
+      setShowCommentNotice(false);
+    }, 3000);
     setShowCommentsModal(false);
   };
 
@@ -147,6 +154,8 @@ const TrainerDashboard = () => {
         <StudentCommentsModal
           activity={selectedActivity}
           student={selectedStudent}
+          comments={comments}
+          showCommentNotice={showCommentNotice}
           onClose={() => setShowCommentsModal(false)}
           onSave={saveComment}
         />
@@ -158,6 +167,11 @@ const TrainerDashboard = () => {
           onClose={() => setShowAnnouncementModal(false)}
           onCreate={createAnnouncement}
         />
+      )}
+      {showCommentNotice && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-100 text-green-800 px-4 py-2 rounded shadow z-50">
+          You've created a new comment!
+        </div>
       )}
     </div>
   );

@@ -1,15 +1,52 @@
 import React, { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { createComment } from "../services/comments";
 
-const StudentCommentsModal = ({ activity, student, onClose, onSave }) => {
-  const [comment, setComment] = useState(student.comment || "");
+const StudentCommentsModal = ({
+  activity,
+  student,
+  onClose,
+  onSave,
+  showCommentNotice,
+}) => {
+  const [comment, setComment] = useState("");
+
+  const createMutationComment = useMutation({
+    mutationFn: (commentData) => createComment(commentData),
+    onSuccess: (data) => {
+      console.log("Comment created successfully:", data);
+      onSave(data);
+      setComment("");
+    },
+    onError: (error) => {
+      console.error("Error creating comment:", error);
+    },
+  });
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userId = user.id;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(comment);
+
+    if (!comment.trim()) return;
+
+    createMutationComment.mutate({
+      studentId: student.id,
+      userId: userId,
+      activityId: activity.id,
+      comment: comment,
+    });
+    setShowCommentNotice(true);
+    setTimeout(() => {
+      setShowCommentNotice(false);
+    }, 3000);
+    setComment("");
+    onClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
@@ -27,17 +64,17 @@ const StudentCommentsModal = ({ activity, student, onClose, onSave }) => {
             <p className="font-medium">{activity.name}</p>
 
             <p className="text-sm text-gray-500 mt-3 mb-1">Student</p>
-            <p className="font-medium">{student.name}</p>
+            <p className="font-medium">{student?.user?.fullName}</p>
 
             <p className="text-sm text-gray-500 mt-3 mb-1">Status</p>
             <p
               className={`inline-block px-2 py-1 text-xs rounded-full ${
-                student.attendance === "present"
+                student.attendant === "present"
                   ? "bg-green-100 text-green-800"
                   : "bg-red-100 text-red-800"
               }`}
             >
-              {student.attendance === "present" ? "Present" : "Absent"}
+              {student.attendant === "present" ? "Present" : "Absent"}
             </p>
           </div>
 

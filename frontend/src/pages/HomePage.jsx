@@ -3,7 +3,6 @@ import React from "react";
 const HomePage = () => {
   return (
     <div className="bg-gradient-to-br from-[#0c1d2e] to-[#0a1622] text-white font-sans min-h-screen flex flex-col overflow-x-hidden">
-      {/* Hero Section with Animated Background */}
       <div className="relative">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=3000&auto=format&fit=crop')] bg-cover bg-center opacity-20"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-[#0c1d2e] to-transparent"></div>
@@ -34,7 +33,7 @@ const HomePage = () => {
                 </svg>
               </div>
               <h1 className="text-2xl md:text-3xl font-bold text-[#f39c12]">
-                Elite Sports Academy
+                E-Sports Academy
               </h1>
             </div>
 
