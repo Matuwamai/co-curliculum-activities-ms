@@ -17,6 +17,8 @@ model Activity {
   trainerId   Int?
   trainer     Trainer?        @relation(fields: [trainerId], references: [id], onDelete: Cascade)
   schedule    Schedule[]
+  comment     Comment[]
+  announcement Announcement[]
 
   @@index([id, name])
   @@map("activities")
@@ -55,6 +57,8 @@ model Trainer {
   userId       Int        @unique
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   activity     Activity[]
+  comment      Comment[]
+  announcement Announcement[]
 
   @@index([id])
   @@map("trainers")
@@ -66,6 +70,7 @@ model Student {
   userId     Int    @unique
   user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   activity   StudentActivity[]
+  comment    Comment[]
 
   @@index([id])
   @@map("students")
@@ -83,6 +88,40 @@ model Schedule {
 
   @@index([id])
   @@map("schedules")
+}
+
+model Comment {
+  id Int @id @default(autoincrement())
+  comment String
+  studentId Int
+  activityId Int
+  trainerId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  trainer Trainer @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  @@index([trainerId, activityId, studentId])
+  @@map("comments")
+}
+
+model Announcement {
+  id Int @id @default(autoincrement())
+  title String
+  announcement String
+  activityId Int
+  trainerId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  trainer Trainer @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  @@index([trainerId, activityId])
+  @@map("announcements")
+
 }
 
 enum DAY {
