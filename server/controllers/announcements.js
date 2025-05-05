@@ -33,26 +33,37 @@ export const createAnnouncement = async (req, res) => {
 };
 
 export const getAnnouncementsByActivityId = async (req, res) => {
-  console.log("Fetching comments for student ID:", req.params.activityId);
   try {
     const { activityId } = req.params;
     const parsedActivityId = parseInt(activityId, 10);
 
-    const comments = await prisma.comment.findMany({
+    const announcements = await prisma.announcement.findMany({
       where: { activityId: parsedActivityId },
       include: {
         activity: true,
+        trainer: {
+          select: {
+            user: {
+              select: {
+                fullName: true,
+              },
+            },
+          },
+        },
       },
     });
-    if (comments.length === 0) {
-      console.log("No comments found for student ID:", parsedActivityId);
-      return res.status(404).json({ message: "No comments found" });
+    if (announcements.length === 0) {
+      return res.status(404).json({ message: "No announcement found" });
     }
+    const fullName = announcements[0].trainer.user.fullName;
+    console.log(
+      "Fetched fullname in announcement:",
+      announcements[0].trainer.user.fullName
+    );
 
-    console.log("Fetched comments:", comments);
-    res.status(200).json(comments);
+    res.status(200).json(announcements);
   } catch (error) {
-    console.error("Error fetching comments:", error);
+    console.error("Error fetching announcements:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };

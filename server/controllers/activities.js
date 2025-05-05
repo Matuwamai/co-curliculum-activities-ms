@@ -155,7 +155,6 @@ export const assignActivityToStudent = async (req, res) => {
 export const getActivitiesByStudentId = async (req, res) => {
   const { id } = req.params;
   const studentId = id;
-  console.log("Student ID in fetching id by actitivy:", studentId);
 
   if (!studentId) {
     return res.status(400).json({ message: "StudentId is required" });
@@ -173,18 +172,51 @@ export const getActivitiesByStudentId = async (req, res) => {
     const activities = await prisma.studentActivity.findMany({
       where: { studentId: studentRecord.id },
       include: {
-        activity: true,
+        activity: {
+          include: {
+            trainer: {
+              include: {
+                user: true,
+              },
+            },
+            schedule: true,
+          },
+        },
       },
     });
 
-    if (activities.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No activities found for this student" });
-    }
+    const formatTime = (date) => {
+      return new Intl.DateTimeFormat("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true, // Use 12-hour format (e.g., 10:00 AM)
+      }).format(date);
+    };
+
+    const formattedActivities = activities.map(({ activity }) => {
+      const schedules = activity.schedule || [];
+      const scheduleTimes = schedules.map(({ startTime, endTime }) => {
+        const startFormatted = formatTime(new Date(startTime));
+        const endFormatted = formatTime(new Date(endTime));
+        return `${startFormatted} - ${endFormatted}`;
+      });
+
+      return {
+        ...activity,
+        trainerUser: activity?.trainer?.user,
+        time:
+          scheduleTimes.length > 0 ? scheduleTimes.join(", ") : "No time set",
+      };
+    });
+
+    console.log(
+      "Activities for student name:",
+      activities[0]?.activity?.trainer?.user?.fullName
+    );
+
     res.status(200).json({
       studentId: studentRecord.id,
-      activities: activities.map((activity) => activity.activity),
+      activities: formattedActivities,
     });
   } catch (error) {
     console.error("Error fetching activities for student:", error);
@@ -331,12 +363,83 @@ export const getActivitiesByTrainerId = async (req, res) => {
 
     const activities = await prisma.activity.findMany({
       where: { trainerId: trainer.id },
+      include: {
+        schedule: true,
+      },
     });
-    res.status(200).json(activities);
+
+    const formattedActivities = activities.map((activity) => ({
+      ...activity,
+      time: activity.schedule.length
+        ? `${capitalizeFirstLetter(activity.schedule[0].day)} ${formatTime(
+            activity.schedule[0].startTime
+          )} - ${formatTime(activity.schedule[0].endTime)}`
+        : activity.time,
+    }));
+
+    res.status(200).json(formattedActivities);
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Error fetching activities:", error);
+    res.status(500).json({ message: "Error fetching activities" });
   }
 };
+
+export const getTrainerByActivityId = async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({ message: "ActivityId is required" });
+  }
+
+  try {
+    const activity = await prisma.activity.findUnique({
+      where: { id: Number(id) },
+      include: {
+        trainer: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+
+    if (!activity) {
+      return res.status(404).json({ message: "Activity not found" });
+    }
+
+    const trainer = activity.trainer;
+    if (!trainer) {
+      return res.status(404).json({ message: "Trainer not found" });
+    }
+
+    const formattedTrainer = {
+      ...trainer,
+      user: {
+        ...trainer.user,
+        fullName: trainer.user.fullName.toLowerCase(),
+        email: trainer.user.email.toLowerCase(),
+      },
+    };
+
+    res.status(200).json(formattedTrainer);
+  } catch (error) {
+    console.error("Error fetching trainer:", error);
+    res.status(500).json({ message: "Error fetching trainer" });
+  }
+};
+
+function formatTime(dateTime) {
+  const date = new Date(dateTime);
+  return date
+    .toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+    .toLowerCase();
+}
+
+function capitalizeFirstLetter(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
 
 export const getStudentsByTrainerId = async (req, res) => {
   const { userId } = req.query;

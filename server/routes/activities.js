@@ -12,6 +12,7 @@ import {
   deleteActivityFromStudent,
   deleteActivityFromTrainer,
   getStudentsByTrainerId,
+  getTrainerByActivityId,
 } from "../controllers/activities.js";
 
 const router = express.Router();
@@ -25,6 +26,7 @@ router.post("/:id/assign", assignActivityToStudent);
 router.post("/assign/:id", assignActivityToTrainer);
 router.get("/student/:id", getActivitiesByStudentId);
 router.get("/trainer/:id", getActivitiesByTrainerId);
+router.get("/activity/:id", getTrainerByActivityId);
 router.delete("/remove/:studentId/:activityId", deleteActivityFromStudent);
 router.delete(
   "/remove/trainer/:trainerId/:activityId",
