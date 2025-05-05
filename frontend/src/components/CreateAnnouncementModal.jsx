@@ -48,7 +48,7 @@ const CreateAnnouncementModal = ({
     onCreate({
       ...announcement,
       activityName: selectedActivity?.name,
-      activityId: parseInt(selectedActivity?.activityId),
+      activityId: parseInt(selectedActivity?.activityId, 10),
       date: new Date().toISOString(),
     });
     createAnnouncementMutation.mutate(announcement);

@@ -20,6 +20,7 @@ import EditTrainerPage from "./pages/EditTrainerPage";
 import TrainerDashboard from "./pages/TrainerDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import SetPassword from "./pages/SetPassword";
+import ReportComponent from "./components/ReportComponent";
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/trainer-dashboard" element={<TrainerDashboard />} />
           <Route path="/student-dashboard" element={<StudentDashboard />} />
+          <Route path="/reports" element={<ReportComponent />} />
 
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />

@@ -5,6 +5,7 @@ import { API_URL } from "../url";
 import { useAuthStore } from "../stores/authStore";
 import Message from "../components/Message";
 import { FiMail, FiLock, FiLoader, FiArrowRight } from "react-icons/fi";
+import { FaExclamationCircle } from "react-icons/fa";
 
 const LoginPage = () => {
   const { login } = useAuthStore((state) => state);
@@ -26,6 +27,7 @@ const LoginPage = () => {
   const loginMutation = useMutation({
     mutationFn: async (userData) => {
       const response = await axios.post(`${API_URL}/users/login`, userData);
+      console.log("Login response", response);
       return response.data;
     },
   });
@@ -63,6 +65,7 @@ const LoginPage = () => {
           window.location.href = "/set-password";
         } else {
           const errorMessage = res?.data?.message;
+          console.log("Error message1", errorMessage);
           setError(errorMessage);
         }
       },
@@ -80,10 +83,23 @@ const LoginPage = () => {
             Sign in to your Sports Academy account
           </p>
         </div>
+        <div>
+          {error && (
+            <div className="text-red-500 flex items-center">
+              <FaExclamationCircle className="mr-2" /> {/* Icon */}
+              <span>{error}</span> {/* Custom error message */}
+            </div>
+          )}
 
-        {loginMutation.isError && (
-          <Message variant="danger" message={error} visible={true} />
-        )}
+          {loginMutation.isError && !error && (
+            <div className="text-red-500 flex items-center">
+              <FaExclamationCircle className="mr-2" /> {/* Icon */}
+              <span>Something went wrong! Please try again.</span>{" "}
+              {/* Fallback error */}
+            </div>
+          )}
+        </div>
+        <div className="mt-4 mb-6"></div>
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-4">
@@ -170,7 +186,6 @@ const LoginPage = () => {
             )}
           </button>
         </form>
-
         <div className="mt-6">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">

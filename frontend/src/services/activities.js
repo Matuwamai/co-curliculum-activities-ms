@@ -63,6 +63,8 @@ export const fetchActivitiesByStudentId = async (studentId) => {
   console.log("Fetching activities for student:", studentId);
   try {
     const { data } = await api.get(`activities/student/${studentId}`);
+    console.log("Activities for student:", data);
+
     return data;
   } catch (error) {
     console.error("Error fetching activities for student:", error);
@@ -116,6 +118,19 @@ export const fetchActivitiesByTrainerId = async (trainerId) => {
     return data;
   } catch (error) {
     console.error("Error fetching activities for trainer in service:", error);
+    const errorMessage = error.response
+      ? error.response.data.message
+      : "An error occurred";
+    throw new Error(errorMessage);
+  }
+};
+
+export const fetchTrainerByActivityId = async (activityId) => {
+  try {
+    const { data } = await api.get(`activities/activity/${activityId}`);
+    return data;
+  } catch (error) {
+    console.error("Error fetching trainer by activity ID:", error);
     const errorMessage = error.response
       ? error.response.data.message
       : "An error occurred";
