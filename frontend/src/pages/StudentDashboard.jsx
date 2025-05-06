@@ -13,14 +13,16 @@ import {
   FiHome,
   FiFileText,
   FiPlus,
+  FiBell,
 } from "react-icons/fi";
-import { motion, AnimatePresence, m } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import TrainerHeader from "../components/UserHeader";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, QueryClient } from "@tanstack/react-query";
 import UserFooter from "../components/UserFooter";
 import { fetchActivitiesByStudentId } from "../services/activities";
 import { fetchAnnouncementsByActivityId } from "../services/announcements";
 import {
+  createComment,
   fetchCommentsByStudentId,
   fetchTrainerByTrainerId,
 } from "../services/comments";
@@ -37,13 +39,13 @@ const StudentDashboard = () => {
 
   // Message and announcement states
   const [newMessage, setNewMessage] = useState("");
-  // const [messages, setMessages] = useState([]);
+  const [noticeMessage, setNoticeMessage] = useState("");
   const [selectedTrainer, setSelectedTrainer] = useState("");
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
 
-  // Dummy data
+  const queryClient = new QueryClient();
 
   const { data: announcements = [], isLoading: announcementLoading } = useQuery(
     {
@@ -91,8 +93,8 @@ const StudentDashboard = () => {
   });
   const activities = responseData?.activities || [];
   localStorage.setItem("activities", JSON.stringify(activities));
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error fetching activities</div>;
+  // if (isLoading) return <div>Loading...</div>;
+  // if (isError) return <div>Error fetching activities</div>;
 
   // Available trainers for messaging
   const trainerNames = [
@@ -105,14 +107,45 @@ const StudentDashboard = () => {
   };
 
   const markAsRead = (id) => {
-    setMessages(
-      messages.map((msg) => (msg.id === id ? { ...msg, read: true } : msg))
+    console.log("Marking message as read:", messages);
+    queryClient.setQueryData(["messages"], (oldData) =>
+      oldData.map((msg) => (msg.id === id ? { ...msg, read: true } : msg))
     );
+    console.log("Marking message as read:", messages);
   };
 
+  const {
+    mutate,
+    isLoading: replyLoadingMsg,
+    isError: replyError,
+    isSuccess,
+  } = useMutation({
+    mutationFn: createComment,
+    onSuccess: () => {
+      setNewMessage("");
+      setSelectedTrainer("");
+      setShowMessageModal(false);
+      setNoticeMessage("Message sent successfully!");
+      setTimeout(() => {
+        setNoticeMessage("");
+      }, 3000);
+    },
+    onError: (error) => {
+      console.error("Error sending message:", error);
+    },
+  });
+  // if (replyLoadingMsg) return <div>Sending...</div>;
+  // if (replyError) return <div>Error sending message</div>;
+
   const handleSendMessage = () => {
+    console.log("Commment by student:", newMessage);
     if (newMessage.trim() && selectedTrainer) {
-      alert(`Message sent to ${selectedTrainer}: ${newMessage}`);
+      mutate({
+        comment: newMessage,
+        studentId: user.student.id,
+        activityId: activities[0].id,
+        userId: activities[0].trainerUser?.id,
+      });
       setNewMessage("");
       setSelectedTrainer("");
       setShowMessageModal(false);
@@ -295,6 +328,20 @@ const StudentDashboard = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
+      {noticeMessage && (
+        <div>
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded shadow-lg z-50 flex items-center"
+          >
+            <FiBell className="mr-2" />
+            {noticeMessage}
+          </motion.div>
+        </div>
+      )}
+
       <TrainerHeader
         role="student"
         onMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -423,7 +470,10 @@ const StudentDashboard = () => {
                   >
                     Cancel
                   </button>
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                  <button
+                    onClick={handleSendMessage}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
                     Send Reply
                   </button>
                 </div>

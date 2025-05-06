@@ -21,6 +21,7 @@ import TrainerDashboard from "./pages/TrainerDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import SetPassword from "./pages/SetPassword";
 import ReportComponent from "./components/ReportComponent";
+import SettingsPage from "./pages/SettingsPage";
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/set-password" element={<SetPassword />} />
+        <Route path="/settings" element={<SettingsPage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="/trainer-dashboard" element={<TrainerDashboard />} />

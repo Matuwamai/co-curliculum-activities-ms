@@ -14,6 +14,7 @@ const DashboardPage = () => {
   const [students, setStudents] = useState([]);
   const [trainers, setTrainers] = useState([]);
   const [activities, setActivities] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const stats = {
     totalStudents: students.length,
     totalTrainers: trainers.length,
@@ -23,6 +24,7 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         const [studentsData, trainersData, activitiesData] = await Promise.all([
           fetchStudents(),
           fetchTrainers(),
@@ -33,6 +35,8 @@ const DashboardPage = () => {
         setActivities(activitiesData);
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -40,79 +44,102 @@ const DashboardPage = () => {
   }, []);
 
   return (
-    <div>
-      <div className="flex flex-col gap-6">
-        <h1 className="text-2xl font-semibold text-blue-400">Dashboard</h1>
-        <div className="grid grid-cols-3 gap-4">
+    <div className="p-4 md:p-6 lg:p-8">
+      {/* Dashboard Header */}
+      <div className="flex flex-col gap-4 mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-3xl font-semibold text-[#3B82F6]">
+          Dashboard
+        </h1>
+
+        {/* Stats Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           <DashCard
             title="Students"
             subtitle="Total Number of Students"
             iconClass={() => (
               <GraduationCap
-                className=""
+                className="text-[#3B82F6]"
                 size={34}
                 count={stats.totalStudents}
               />
             )}
             count={stats.totalStudents}
             link="/students"
+            isLoading={isLoading}
           />
           <DashCard
             title="Trainers"
             subtitle="Total Number of Trainers"
             iconClass={() => (
               <ScissorsLineDashed
-                className=""
+                className="text-[#10B981]"
                 size={34}
-                count={stats.totalStudents}
+                count={stats.totalTrainers}
               />
             )}
             count={stats.totalTrainers}
             link="/trainers"
+            isLoading={isLoading}
           />
           <DashCard
             title="Activities"
             subtitle="Total Number of Activities"
             iconClass={() => (
               <SquareActivity
-                className=""
+                className="text-[#8B5CF6]"
                 size={34}
-                count={stats.totalStudents}
+                count={stats.totalActivities}
               />
             )}
             count={stats.totalActivities}
             link="/activities"
+            isLoading={isLoading}
           />
         </div>
       </div>
-      <div className="mt-4">
-        <h6 className="text-md font-normal text-blue-400">Recent Activities</h6>
-        <div className="flex flex-col gap-4 mt-2">
-          <div className="p-4 border border-gray-300 rounded shadow-sm flex items-center gap-4">
-            <Users className="text-blue-400" size={24} />
+
+      {/* Recent Activities Section */}
+      <div className="mt-6 md:mt-8">
+        <div className="flex justify-between items-center mb-4">
+          <h6 className="text-lg md:text-xl font-medium text-[#3B82F6]">
+            Recent Activities
+          </h6>
+        </div>
+
+        <div className="flex flex-col gap-3 md:gap-4">
+          <div className="p-4 border border-[#E5E7EB] rounded-lg shadow-xs hover:shadow-sm transition-shadow duration-200 flex items-center gap-4 hover:bg-[#F9FAFB]">
+            <div className="p-2 bg-[#EFF6FF] rounded-full">
+              <Users className="text-[#3B82F6]" size={24} />
+            </div>
             <div>
-              <p className="font-medium">
+              <p className="font-medium text-[#111827]">
                 John Doe has been promoted to Level 2
               </p>
-              <p className="text-sm text-gray-500">2 hours ago</p>
+              <p className="text-sm text-[#6B7280]">2 hours ago</p>
             </div>
           </div>
-          <div className="p-4 border border-gray-300 rounded shadow-sm flex items-center gap-4">
-            <Users className="text-blue-400" size={24} />
+
+          <div className="p-4 border border-[#E5E7EB] rounded-lg shadow-xs hover:shadow-sm transition-shadow duration-200 flex items-center gap-4 hover:bg-[#F9FAFB]">
+            <div className="p-2 bg-[#EFF6FF] rounded-full">
+              <Users className="text-[#3B82F6]" size={24} />
+            </div>
             <div>
-              <p className="font-medium">
+              <p className="font-medium text-[#111827]">
                 Jane Smith completed the Advanced Training
               </p>
-              <p className="text-sm text-gray-500">1 day ago</p>
+              <p className="text-sm text-[#6B7280]">1 day ago</p>
             </div>
           </div>
-          <div className="p-4 border border-gray-300 rounded shadow-sm flex items-center gap-4">
-            <Users className="text-blue-400" size={24} />
+
+          <div className="p-4 border border-[#E5E7EB] rounded-lg shadow-xs hover:shadow-sm transition-shadow duration-200 flex items-center gap-4 hover:bg-[#F9FAFB]">
+            <div className="p-2 bg-[#EFF6FF] rounded-full">
+              <Users className="text-[#3B82F6]" size={24} />
+            </div>
             <div>
-              <p className="font-medium">
+              <p className="font-medium text-[#111827]">
                 Michael Brown joined the Basketball Program
               </p>
-              <p className="text-sm text-gray-500">3 days ago</p>
+              <p className="text-sm text-[#6B7280]">3 days ago</p>
             </div>
           </div>
         </div>

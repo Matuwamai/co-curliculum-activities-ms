@@ -8,51 +8,44 @@ import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import PageHeader from "../components/PageHeader";
 import { fetchStudents } from "../services/students";
+import { Loader2 } from "lucide-react";
 
 const StudentsPage = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleDeleteStudent = async (studentId) => {
     try {
       const isConfirmed = window.confirm(
         "Are you sure you want to delete this student? This action cannot be undone."
       );
-      if (!isConfirmed) {
-        return;
-      } else {
-        const response = await axios.delete(
-          `${API_URL}/users/${studentId}/delete`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        toast.success("Student deleted successfully");
-        return response.data;
-      }
+      if (!isConfirmed) return;
+
+      await axios.delete(`${API_URL}/users/${studentId}/delete`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      toast.success("Student deleted successfully");
+      return studentId;
     } catch (error) {
       toast.error("Error deleting student. Please try again.");
       console.error("Error deleting student:", error);
       throw error;
     }
   };
+
   const deleteStudentMutation = useMutation({
     mutationFn: handleDeleteStudent,
     onSuccess: (studentId) => {
-      mutation.mutate();
       setStudents((prevStudents) =>
         prevStudents.filter((student) => student.id !== studentId)
       );
-      console.log(`User with ID ${studentId} deleted successfully`);
-    },
-    onError: (error) => {
-      console.error("Error deleting user:", error);
     },
   });
 
-  const mutation = useMutation({
+  const fetchStudentsMutation = useMutation({
     mutationFn: fetchStudents,
     onSuccess: (data) => {
       setStudents(data);
@@ -65,55 +58,59 @@ const StudentsPage = () => {
   });
 
   useEffect(() => {
-    mutation.mutate();
+    fetchStudentsMutation.mutate();
   }, []);
+
+  const filteredStudents = students.filter(
+    (student) =>
+      student.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.email?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const columns = [
     {
       field: "id",
       headerName: "S/NO",
-      width: 100,
-      renderCell: (params) => {
-        return (
-          <h6 className="text-gray-600 uppercase my-auto">{params.row.id}</h6>
-        );
-      },
+      width: 80,
+      renderCell: (params) => (
+        <span className="text-gray-600 text-sm">{params.row.id}</span>
+      ),
     },
     {
       field: "fullName",
       headerName: "Full Name",
       width: 150,
-      renderCell: (params) => {
-        return <h6 className="text-gray-600 my-auto">{params.row.fullName}</h6>;
-      },
+      renderCell: (params) => (
+        <span className="text-gray-600 text-sm">{params.row.fullName}</span>
+      ),
     },
     {
       field: "email",
       headerName: "Email",
-      width: 250,
-      renderCell: (params) => {
-        return <h6 className="text-gray-600 my-auto">{params.row.email}</h6>;
-      },
+      width: 200,
+      renderCell: (params) => (
+        <span className="text-gray-600 text-sm truncate">
+          {params.row.email}
+        </span>
+      ),
     },
     {
       field: "phoneNo",
       headerName: "Phone No",
-      width: 150,
-      renderCell: (params) => {
-        return <h6 className="text-gray-600 my-auto">{params.row.phoneNo}</h6>;
-      },
+      width: 130,
+      renderCell: (params) => (
+        <span className="text-gray-600 text-sm">{params.row.phoneNo}</span>
+      ),
     },
     {
       field: "parentName",
-      headerName: "Parent Name",
+      headerName: "Parent",
       width: 150,
-      renderCell: (params) => {
-        return (
-          <h6 className="text-gray-600 my-auto">
-            {params.row.student.parentName}
-          </h6>
-        );
-      },
+      renderCell: (params) => (
+        <span className="text-gray-600 text-sm">
+          {params.row.student?.parentName || "N/A"}
+        </span>
+      ),
     },
     {
       field: "createdAt",
@@ -129,11 +126,9 @@ const StudentsPage = () => {
           }
         );
         return (
-          <div className="">
-            <h6 className="bg-slate-100 px-2 rounded-md text-blue-300">
-              {formattedDate}
-            </h6>
-          </div>
+          <span className="text-[#3B82F6] bg-[#EFF6FF] px-2 py-1 rounded-md text-xs">
+            {formattedDate}
+          </span>
         );
       },
     },
@@ -141,55 +136,57 @@ const StudentsPage = () => {
       field: "action",
       headerName: "Actions",
       width: 150,
-      renderCell: (params) => {
-        return (
-          <div className="flex space-x-2 items-center h-full">
-            <button
-              className="border text-blue-400 cursor-pointer p-2 rounded"
-              onClick={() => {
-                // Handle delete action
-                console.log(`View user with ID: ${params.row.id}`);
-              }}
-            >
-              <Eye size={16} />
-            </button>
-            <Link
-              className="border text-green-400 cursor-pointer p-2 rounded"
-              to={`/students/${params.row.id}/edit`}
-            >
-              {" "}
-              <Pencil size={16} />
-            </Link>
-            <button
-              className="border text-red-400 cursor-pointer p-2 rounded"
-              onClick={() => {
-                deleteStudentMutation.mutate(params.row.id);
-                // Handle delete action
-                console.log(`Delete user with ID: ${params.row.id}`);
-              }}
-            >
-              <Delete size={16} />
-            </button>
-          </div>
-        );
-      },
+      renderCell: (params) => (
+        <div className="flex space-x-2">
+          <Link
+            to={`/students/${params.row.id}`}
+            className="p-2 text-[#3B82F6] hover:bg-[#EFF6FF] rounded transition-colors"
+          >
+            <Eye size={16} />
+          </Link>
+          <Link
+            to={`/students/${params.row.id}/edit`}
+            className="p-2 text-[#10B981] hover:bg-[#ECFDF5] rounded transition-colors"
+          >
+            <Pencil size={16} />
+          </Link>
+          <button
+            onClick={() => deleteStudentMutation.mutate(params.row.id)}
+            className="p-2 text-[#EF4444] hover:bg-[#FEE2E2] rounded transition-colors"
+          >
+            <Delete size={16} />
+          </button>
+        </div>
+      ),
     },
   ];
 
-  if (loading) return <div>Loading...</div>;
-
-  console.log("Edit button clicked");
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="animate-spin text-[#3B82F6]" size={32} />
+      </div>
+    );
+  }
 
   return (
-    <div>
+    <div className="p-4 md:p-6">
       <PageHeader
         title="Students"
         btnText="Add Student"
         btnLink="/students/new"
-        placeholder="Search Student by name and enter..."
-        onSubmit={() => {}}
+        placeholder="Search students..."
+        onSubmit={(query) => setSearchQuery(query)}
       />
-      <DataTable data={students} columns={columns} />
+
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <DataTable
+          data={filteredStudents}
+          columns={columns}
+          loading={loading}
+          noDataMessage="No students found"
+        />
+      </div>
     </div>
   );
 };
