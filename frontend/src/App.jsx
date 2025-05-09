@@ -17,6 +17,11 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import EditActivityPage from "./pages/EditActivityPage";
 import EditStudentPage from "./pages/EditStudentPage";
 import EditTrainerPage from "./pages/EditTrainerPage";
+import TrainerDashboard from "./pages/TrainerDashboard";
+import StudentDashboard from "./pages/StudentDashboard";
+import SetPassword from "./pages/SetPassword";
+import ReportComponent from "./components/ReportComponent";
+import SettingsPage from "./pages/SettingsPage";
 
 export default function App() {
   return (
@@ -25,7 +30,14 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/set-password" element={<SetPassword />} />
+        <Route path="/settings" element={<SettingsPage />} />
+
         <Route element={<ProtectedRoute />}>
+          <Route path="/trainer-dashboard" element={<TrainerDashboard />} />
+          <Route path="/student-dashboard" element={<StudentDashboard />} />
+          <Route path="/reports" element={<ReportComponent />} />
+
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/activities" element={<ActivitiesPage />} />

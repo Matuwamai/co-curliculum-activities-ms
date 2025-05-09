@@ -11,12 +11,16 @@ model Activity {
   id          Int            @id @default(autoincrement())
   name        String         @unique
   description String?
+  location    String @default("Main Field")
   students     StudentActivity[]
+  time String @default("No time set")
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   trainerId   Int?
   trainer     Trainer?        @relation(fields: [trainerId], references: [id], onDelete: Cascade)
   schedule    Schedule[]
+  comment     Comment[]
+  announcement Announcement[]
 
   @@index([id, name])
   @@map("activities")
@@ -55,6 +59,8 @@ model Trainer {
   userId       Int        @unique
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   activity     Activity[]
+  comment      Comment[]
+  announcement Announcement[]
 
   @@index([id])
   @@map("trainers")
@@ -64,8 +70,10 @@ model Student {
   id         Int    @id @default(autoincrement())
   parentName String
   userId     Int    @unique
+  attendant  ATTENDANT @default(PRESENT)
   user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   activity   StudentActivity[]
+  comment    Comment[]
 
   @@index([id])
   @@map("students")
@@ -76,13 +84,48 @@ model Schedule {
   activityId Int
   activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
   day        DAY
-  startTime  String
-  endTime    String
+  startTime  DateTime
+  endTime    DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   @@index([id])
   @@map("schedules")
+}
+
+model Comment {
+  id Int @id @default(autoincrement())
+  comment String
+  studentId Int
+  activityId Int
+  trainerId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  trainer Trainer @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  @@index([trainerId, activityId, studentId])
+  @@map("comments")
+}
+
+model Announcement {
+  id Int @id @default(autoincrement())
+  title String
+  announcement String
+  activityId Int
+  trainerId Int
+  urgent AnnouncementUrgency @default(FALSE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  trainer Trainer @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  @@index([trainerId, activityId])
+  @@map("announcements")
+
 }
 
 enum DAY {
@@ -97,4 +140,14 @@ enum ROLE {
   ADMIN
   TRAINER
   STUDENT
+}
+
+enum ATTENDANT {
+  PRESENT
+  ABSENT
+}
+
+enum AnnouncementUrgency {
+  TRUE
+  FALSE
 }

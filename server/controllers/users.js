@@ -55,7 +55,8 @@ export const registerUser = async (req, res) => {
       }
       const { fullName, email, phoneNo, parentName, role, password } = value;
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+      let hashedPassword;
+      if (password) hashedPassword = await bcrypt.hash(password, 10);
 
       const existingUser = await prisma.user.findFirst({
         where: {
@@ -94,7 +95,8 @@ export const registerUser = async (req, res) => {
       }
       const { fullName, email, phoneNo, nationalIdNo, role, password } = value;
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+      let hashedPassword;
+      if (password) hashedPassword = await bcrypt.hash(password, 10);
 
       const existingUser = await prisma.user.findFirst({
         where: {
@@ -151,10 +153,17 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
     if (!user.password) {
+      console.log("user", user.role);
       return res.status(401).json({
-        message: "Password not set. Please set your password to continue",
+        message: "Password not set. Redirecting to set password ...",
+        redirect: true,
+        token,
+        userId: user.id,
+        userType: user.role,
       });
     }
 
@@ -162,9 +171,6 @@ export const login = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
 
     const userData = {
       id: user.id,
@@ -237,16 +243,15 @@ export const getUser = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { userType } = req.query;
-    console.log("req body", req.body);
     const { id } = req.params;
     if (!["student", "trainer"].includes(userType)) {
       return res.status(400).json({ message: "Invalid user type" });
     }
     if (userType === "student") {
       const { error, value } = studentEditSchema.validate(req.body);
-      if (error) {
+      if (error)
         return res.status(400).json({ message: error.details[0].message });
-      }
+
       const { fullName, email, phoneNo, parentName, password } = value;
 
       const existingUser = await prisma.user.findUnique({
@@ -255,11 +260,11 @@ export const updateUser = async (req, res) => {
         },
       });
 
-      if (!existingUser) {
-        return res.status(404).json({ message: "User not found" });
-      }
+      if (!existingUser)
+        return res.status(404).json({ message: "Student not found" });
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+      let hashedPassword;
+      if (password) hashedPassword = await bcrypt.hash(password, 10);
 
       const updatedUser = await prisma.user.update({
         where: {
@@ -272,7 +277,7 @@ export const updateUser = async (req, res) => {
           password: hashedPassword || existingUser.password,
           student: {
             update: {
-              parentName: parentName || existingUser.student.parentName,
+              parentName: parentName || existingUser.student?.parentName,
             },
           },
         },
@@ -280,21 +285,13 @@ export const updateUser = async (req, res) => {
           student: true,
         },
       });
-      console.log("Data to be updated:", {
-        id: Number(id),
-        fullName: fullName || existingUser.fullName,
-        email: email || existingUser.email,
-        phoneNo: phoneNo || existingUser.phoneNo,
-        password: hashedPassword,
-        parentName: parentName || existingUser.student.parentName,
-      });
 
       res.status(201).json(updatedUser);
     } else if (userType === "trainer") {
       const { error, value } = trainerEditSchema.validate(req.body);
-      if (error) {
+      if (error)
         return res.status(400).json({ message: error.details[0].message });
-      }
+
       const { fullName, email, phoneNo, nationalIdNo, password } = value;
 
       const existingUser = await prisma.user.findUnique({
@@ -303,10 +300,11 @@ export const updateUser = async (req, res) => {
         },
       });
 
-      if (!existingUser) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      const hashedPassword = await bcrypt.hash(password, 10);
+      if (!existingUser)
+        return res.status(404).json({ message: "Trainer not found" });
+
+      let hashedPassword;
+      if (password) hashedPassword = await bcrypt.hash(password, 10);
 
       const updatedUser = await prisma.user.update({
         where: {

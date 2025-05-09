@@ -5,6 +5,14 @@ import {
   getActivityById,
   updateActivity,
   deleteActivity,
+  assignActivityToStudent,
+  assignActivityToTrainer,
+  getActivitiesByStudentId,
+  getActivitiesByTrainerId,
+  deleteActivityFromStudent,
+  deleteActivityFromTrainer,
+  getStudentsByTrainerId,
+  getTrainerByActivityId,
 } from "../controllers/activities.js";
 
 const router = express.Router();
@@ -14,5 +22,16 @@ router.get("/", getAllActivities);
 router.get("/:id", getActivityById);
 router.put("/:id", updateActivity);
 router.delete("/:id", deleteActivity);
+router.post("/:id/assign", assignActivityToStudent);
+router.post("/assign/:id", assignActivityToTrainer);
+router.get("/student/:id", getActivitiesByStudentId);
+router.get("/trainer/:id", getActivitiesByTrainerId);
+router.get("/activity/:id", getTrainerByActivityId);
+router.delete("/remove/:studentId/:activityId", deleteActivityFromStudent);
+router.delete(
+  "/remove/trainer/:trainerId/:activityId",
+  deleteActivityFromTrainer
+);
+router.get("/students/activity/:id", getStudentsByTrainerId);
 
 export default router;

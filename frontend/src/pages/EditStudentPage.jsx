@@ -4,6 +4,7 @@ import StudentForm from "../components/StudentForm";
 import { useParams } from "react-router";
 import { fetchStudentById } from "../services/students";
 import { useQuery } from "@tanstack/react-query";
+import ViewActivity from "../components/ViewActivity";
 
 const EditStudentPage = () => {
   const { id } = useParams();
@@ -26,7 +27,14 @@ const EditStudentPage = () => {
   return (
     <div>
       <PageHeader btnText="Go to Students" btnLink="/students" />
-      <StudentForm mode="edit" initialData={data} id={data.id} />
+      <div className="flex gap-6">
+        <div className="w-1/2">
+          <StudentForm mode="edit" initialData={data} id={data.id} />
+        </div>
+        <div className="w-1/2 border-l-2 border-gray-300 pl-4 mt-7">
+          <ViewActivity userType="student" />
+        </div>
+      </div>
     </div>
   );
 };

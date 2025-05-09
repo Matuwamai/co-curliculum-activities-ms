@@ -12,7 +12,6 @@ const StudentForm = ({ mode = "new", initialData = null }) => {
     fullName: "",
     email: "",
     phoneNo: "",
-    password: "",
     role: "STUDENT",
     parentName: "",
   });
@@ -67,7 +66,6 @@ const StudentForm = ({ mode = "new", initialData = null }) => {
       fullName: "",
       email: "",
       phoneNo: "",
-      password: "",
       role: "STUDENT",
       parentName: "",
     });
@@ -79,15 +77,13 @@ const StudentForm = ({ mode = "new", initialData = null }) => {
         fullName: initialData.fullName || "",
         email: initialData.email || "",
         phoneNo: initialData.phoneNo || "",
-        password: "",
-        parentName: initialData.parentName || "",
+        parentName: initialData.student.parentName || "",
       });
     } else {
       setStudentData({
         fullName: "",
         email: "",
         phoneNo: "",
-        password: "",
         role: "STUDENT",
         parentName: "",
       });
@@ -106,6 +102,7 @@ const StudentForm = ({ mode = "new", initialData = null }) => {
         ) : (
           <h6 className="text-xl text-blue-400 mb-3">Edit Student</h6>
         )}
+
         <div className="mb-3 flex flex-col space-y-2">
           <label htmlFor="fullName">Full Name</label>
           <input
@@ -151,17 +148,6 @@ const StudentForm = ({ mode = "new", initialData = null }) => {
             name="phoneNo"
             id="phoneNo"
             value={studentData.phoneNo}
-            onChange={handleChange}
-            className="p-2 rounded-md border border-gray-300 focus:outline-blue-400"
-          />
-        </div>
-        <div className="mb-3 flex flex-col space-y-2">
-          <label htmlFor="phoneNo">Password</label>
-          <input
-            type="text"
-            name="password"
-            id="password"
-            value={studentData.password}
             onChange={handleChange}
             className="p-2 rounded-md border border-gray-300 focus:outline-blue-400"
           />
