@@ -17,7 +17,7 @@ const SetPassword = () => {
   const handlePasswordChange = (e) => {
     const value = e.target.value;
     setPassword(value);
-    // Calculate password strength (simple version)
+// Password strength calculation
     let strength = 0;
     if (value.length >= 8) strength += 1;
     if (/[A-Z]/.test(value)) strength += 1;
