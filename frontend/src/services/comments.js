@@ -1,6 +1,7 @@
 import api from "./api";
 
 export const createComment = async (commentData) => {
+  console.log("Creating comment with data:", commentData);
   try {
     const token = localStorage.getItem("token");
     if (!token) {

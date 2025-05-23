@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   FiMessageSquare,
   FiCalendar,
@@ -26,6 +26,9 @@ import {
   fetchCommentsByStudentId,
   fetchTrainerByTrainerId,
 } from "../services/comments";
+import  ThreadItem  from "../components/ThreadItem";
+import  MessageThreadModal  from "../components/MessageThreadModal";
+import  {organizeMessagesIntoThreads}  from "../components/utilis";
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -44,6 +47,8 @@ const StudentDashboard = () => {
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
+  const [repliedToId, setRepliedToId] = useState(null);
+  const [replyingToId, setReplyingToId] = useState(null);
 
   const queryClient = new QueryClient();
 
@@ -67,6 +72,12 @@ const StudentDashboard = () => {
     refetchOnReconnect: false,
     refetchOnMount: false,
   });
+
+//   const messages = useMemo(() => {
+//     console.log("Raw Messages:", rawMessages);
+//   if (!rawMessages) return [];
+//   return buildThreadTree(rawMessages);
+// }, [rawMessages]);
 
   const trainerId = messages.length > 0 ? messages[0].trainerId : null;
   const { data: trainerName, isLoading: trainerLoading } = useQuery({
@@ -137,20 +148,23 @@ const StudentDashboard = () => {
   // if (replyLoadingMsg) return <div>Sending...</div>;
   // if (replyError) return <div>Error sending message</div>;
 
-  const handleSendMessage = () => {
-    console.log("Commment by student:", newMessage);
-    if (newMessage.trim() && selectedTrainer) {
-      mutate({
-        comment: newMessage,
-        studentId: user.student.id,
-        activityId: activities[0].id,
-        userId: activities[0].trainerUser?.id,
-      });
-      setNewMessage("");
-      setSelectedTrainer("");
+  const handleSendMessage = (text, parentId) => {
+    console.log("Sending message:", newMessage);
+  if (text.trim() || newMessage.trim()) {
+    mutate({
+      comment: text,
+      studentId: user.student.id,
+      activityId: activities[0].id,
+      userId: activities[0].trainerUser?.id,
+      parentId: parentId || replyingToId,
+    });
+    setNewMessage("");
+    setReplyingToId(null);
+    if (!selectedMessage) {
       setShowMessageModal(false);
     }
-  };
+  }
+};
 
   const handleCreateAnnouncement = (content) => {
     const newAnnouncement = {
@@ -163,8 +177,18 @@ const StudentDashboard = () => {
     setShowAnnouncementModal(false);
   };
 
-  // Component definitions
-  const DashboardTab = () => (
+  
+
+// Add this handler for inline replies
+const handleInlineReply = (messageId, replyText) => {
+   console.log("Reply text before send:", replyText);
+   console.log("Message ID for reply:", messageId);
+  handleSendMessage(replyText, messageId);
+  console.log("Sending message in inline:", newMessage);
+};
+
+// Component definitions
+const DashboardTab = () => (
     <>
       {/* Stats Cards - Mobile responsive */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
@@ -245,40 +269,64 @@ const StudentDashboard = () => {
     </>
   );
 
-  const MessagesTab = () => (
+  const MessagesTab = () => {
+  const threads = organizeMessagesIntoThreads(messages);
+
+  return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200">
       <div className="p-4 border-b border-gray-200 flex justify-between items-center">
         <h2 className="text-lg font-semibold flex items-center">
           <FiMessageSquare className="mr-2 text-blue-600" />
-          My Messages
+          Message Threads
         </h2>
         <button
-          onClick={() => setShowMessageModal(true)}
+          onClick={() => {
+            setSelectedMessage(null);
+            setShowMessageModal(true);
+          }}
           className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
         >
-          <FiPlus className="mr-1" /> New
+          <FiPlus className="mr-1" /> New Message
         </button>
       </div>
 
       <div className="divide-y divide-gray-200">
-        {messages.length === 0 ? (
-          <p className="text-center text-gray-500">No messages available</p>
+        {threads.length === 0 ? (
+          <p className="text-center text-gray-500 p-4">No messages available</p>
         ) : (
-          messages.map((message) => (
-            <MessageItem
-              key={message.id}
-              message={message}
-              onClick={() => {
-                setSelectedMessage(message);
-                markAsRead(message.id);
-              }}
-              trainerName={trainerName.fullName}
-            />
+          threads.map((msg) => (
+          <ThreadItem 
+            key={msg.id}
+            message={msg}
+            onClick={(msg) => {
+              // setSelectedMessage(msg);
+              markAsRead(msg.id);
+            }}
+            trainerName={trainerName?.fullName || "Coach"}
+            depth={0}
+            onReply={handleInlineReply}
+            isActiveThread={selectedMessage?.id === msg.id}
+            selectedMessageId={selectedMessage?.id} 
+          />
+
           ))
         )}
       </div>
     </div>
   );
+};
+
+// Replace the old message modal with:
+{selectedMessage && (
+  <MessageThreadModal
+    selectedMessage={selectedMessage}
+    setSelectedMessage={setSelectedMessage}
+    newMessage={newMessage}
+    setNewMessage={setNewMessage}
+    handleSendMessage={handleSendMessage}
+    trainerName={trainerName?.fullName || "Coach"}
+  />
+)}
 
   const ScheduleTab = () => (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
@@ -457,8 +505,11 @@ const StudentDashboard = () => {
                   {/* Assuming `createdAt` is the timestamp */}
                 </div>
               </div>
-              <div className="p-4 border-t border-gray-200">
+            
+              {/* <div className="p-4 border-t border-gray-200">
                 <textarea
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type your reply..."
                   className="w-full border border-gray-300 rounded-lg p-3 mb-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   rows={3}
@@ -471,15 +522,18 @@ const StudentDashboard = () => {
                     Cancel
                   </button>
                   <button
+                    
                     onClick={handleSendMessage}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                   >
                     Send Reply
                   </button>
                 </div>
-              </div>
+              </div> */}
+           
             </motion.div>
           </motion.div>
+ 
         )}
       </AnimatePresence>
 
@@ -545,7 +599,7 @@ const StudentDashboard = () => {
                   Cancel
                 </button>
                 <button
-                  onClick={handleSendMessage}
+                  onClick={() => handleSendMessage(newMessage, replyingToId)}
                   disabled={!selectedTrainer || !newMessage.trim()}
                   className={`px-4 py-2 rounded-lg text-white ${
                     !selectedTrainer || !newMessage.trim()
