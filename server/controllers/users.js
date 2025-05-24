@@ -172,13 +172,18 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    const userData = {
+    let userData = {
       id: user.id,
       fullName: user.fullName,
       email: user.email,
       phoneNo: user.phoneNo,
       role: user.role,
     };
+    if (user.role === "STUDENT") {
+      userData.student = user.student;
+    } else if (user.role === "TRAINER") {
+      userData.trainer = user.trainer;
+    }
 
     res.status(200).json({ user: userData, token });
   } catch (error) {
@@ -244,7 +249,7 @@ export const updateUser = async (req, res) => {
   try {
     const { userType } = req.query;
     const { id } = req.params;
-    if (!["student", "trainer"].includes(userType)) {
+    if (!["student", "trainer", "admin"].includes(userType)) {
       return res.status(400).json({ message: "Invalid user type" });
     }
     if (userType === "student") {
@@ -323,6 +328,35 @@ export const updateUser = async (req, res) => {
         },
         include: {
           trainer: true,
+        },
+      });
+
+      res.status(201).json(updatedUser);
+    }
+    else if (userType === "admin") {
+      const { fullName, email, phoneNo, password } = req.body;
+
+      const existingUser = await prisma.user.findUnique({
+        where: {
+          id: Number(id),
+        },
+      });
+
+      if (!existingUser)
+        return res.status(404).json({ message: "Admin not found" });
+
+      let hashedPassword;
+      if (password) hashedPassword = await bcrypt.hash(password, 10);
+
+      const updatedUser = await prisma.user.update({
+        where: {
+          id: Number(id),
+        },
+        data: {
+          fullName: fullName || existingUser.fullName,
+          email: email || existingUser.email,
+          phoneNo: phoneNo || existingUser.phoneNo,
+          password: hashedPassword || existingUser.password,
         },
       });
 
