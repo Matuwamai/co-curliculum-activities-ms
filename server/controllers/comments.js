@@ -2,15 +2,11 @@ import prisma from "../config/db.js";
 
 export const createComment = async (req, res) => {
   try {
-    const { activityId, userId, studentId, comment } = req.body;
-
-    console.log("user id in comments:", userId);
-
+    const { activityId, userId, studentId, comment, parentId } = req.body;
     const trainer = await prisma.trainer.findUnique({
       where: { userId: userId },
       select: { id: true },
     });
-    console.log("Trainer ID in ocmments:", trainer);
     if (!trainer) {
       return res.status(404).json({ message: "Trainer not found" });
     }
@@ -20,6 +16,7 @@ export const createComment = async (req, res) => {
         activityId,
         studentId,
         trainerId: trainer.id,
+        parentId,
         comment,
       },
     });
@@ -38,22 +35,20 @@ export const getCommentsByStudentId = async (req, res) => {
     const parsedUserId = parseInt(userId, 10);
 
     const student = await prisma.student.findUnique({
-      where: { userId: parsedUserId }, // Assuming student model has userId field
+      where: { userId: parsedUserId },
     });
 
-    // If no student is found for the given userId, return 404
     if (!student) {
       console.log("No student found for user ID:", parsedUserId);
       return res.status(404).json({ message: "Student not found" });
     }
 
-    const studentId = student.id; // Get the studentId from the student model
+    const studentId = student.id;
 
-    // Now, fetch comments for the studentId
     const comments = await prisma.comment.findMany({
       where: { studentId: studentId },
       include: {
-        activity: true, // Include related activity data
+        activity: true,
       },
     });
 
@@ -63,7 +58,7 @@ export const getCommentsByStudentId = async (req, res) => {
     }
 
     console.log("Fetched comments:", comments);
-    res.status(200).json(comments); // Return the fetched comments
+    res.status(200).json(comments);
   } catch (error) {
     console.error("Error fetching comments:", error);
     res.status(500).json({ message: "Internal server error" });

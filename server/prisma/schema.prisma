@@ -8,18 +8,18 @@ datasource db {
 }
 
 model Activity {
-  id          Int            @id @default(autoincrement())
-  name        String         @unique
-  description String?
-  location    String @default("Main Field")
+  id           Int               @id @default(autoincrement())
+  name         String            @unique
+  description  String?
+  location     String            @default("Main Field")
   students     StudentActivity[]
-  time String @default("No time set")
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  trainerId   Int?
-  trainer     Trainer?        @relation(fields: [trainerId], references: [id], onDelete: Cascade)
-  schedule    Schedule[]
-  comment     Comment[]
+  time         String            @default("No time set")
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  trainerId    Int?
+  trainer      Trainer?          @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  schedule     Schedule[]
+  comment      Comment[]
   announcement Announcement[]
 
   @@index([id, name])
@@ -28,9 +28,9 @@ model Activity {
 
 model StudentActivity {
   id         Int      @id @default(autoincrement())
-  studentId   Int
+  studentId  Int
   activityId Int
-  student     Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, activityId])
@@ -38,26 +38,26 @@ model StudentActivity {
 }
 
 model User {
-  id         Int            @id @default(autoincrement())
-  fullName   String
-  email      String         @unique
-  phoneNo    String         @unique
-  password   String?
-  role       ROLE           @default(STUDENT)
-  trainer    Trainer?
-  student    Student?
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
+  id        Int       @id @default(autoincrement())
+  fullName  String
+  email     String    @unique
+  phoneNo   String    @unique
+  password  String?
+  role      ROLE      @default(STUDENT)
+  trainer   Trainer?
+  student   Student?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@index([id, email])
   @@map("users")
 }
 
 model Trainer {
-  id           Int        @id @default(autoincrement())
-  nationalIdNo String     @unique
-  userId       Int        @unique
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           Int            @id @default(autoincrement())
+  nationalIdNo String         @unique
+  userId       Int            @unique
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   activity     Activity[]
   comment      Comment[]
   announcement Announcement[]
@@ -67,11 +67,11 @@ model Trainer {
 }
 
 model Student {
-  id         Int    @id @default(autoincrement())
+  id         Int               @id @default(autoincrement())
   parentName String
-  userId     Int    @unique
-  attendant  ATTENDANT @default(PRESENT)
-  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int               @unique
+  attendant  ATTENDANT         @default(PRESENT)
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   activity   StudentActivity[]
   comment    Comment[]
 
@@ -94,38 +94,44 @@ model Schedule {
 }
 
 model Comment {
-  id Int @id @default(autoincrement())
-  comment String
-  studentId Int
+  id        Int      @id @default(autoincrement())
+  comment   String
+  studentId Int?     // nullable
   activityId Int
-  trainerId Int
+  trainerId Int?     // nullable
+  parentId  Int?     // nullable for threading
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
-  trainer Trainer @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  student  Student?  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  activity Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  trainer  Trainer?  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
 
   @@index([trainerId, activityId, studentId])
+  @@index([parentId])
   @@map("comments")
 }
 
+
+
 model Announcement {
-  id Int @id @default(autoincrement())
-  title String
+  id           Int                 @id @default(autoincrement())
+  title        String
   announcement String
-  activityId Int
-  trainerId Int
-  urgent AnnouncementUrgency @default(FALSE)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  activityId   Int
+  trainerId    Int
+  urgent       AnnouncementUrgency @default(FALSE)
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
 
   activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
-  trainer Trainer @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  trainer  Trainer  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
 
   @@index([trainerId, activityId])
   @@map("announcements")
-
 }
 
 enum DAY {
