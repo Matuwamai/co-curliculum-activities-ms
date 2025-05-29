@@ -9,6 +9,8 @@ import {
   FiChevronDown,
   FiChevronUp,
   FiMenu,
+  FiUser,
+  FiClock,
   FiX,
   FiHome,
   FiFileText,
@@ -22,6 +24,7 @@ import CreateAnnouncementModal from "../components/CreateAnnouncementModal";
 import ReportComponent from "../components/ReportComponent";
 import { useQuery } from "@tanstack/react-query";
 import { fetchActivitiesByTrainerId } from "../services/activities";
+import { fetchCommentsByTrainerId } from "../services/comments";
 import { fetchStudentsByTrainerId } from "../services/studentTrainer";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -51,6 +54,22 @@ const TrainerDashboard = () => {
 
   const user = JSON.parse(localStorage.getItem("user"));
   const trainerId = user.id;
+  
+  // Fetching comments for the trainer
+  const {
+    data: commentsData,
+    error: commentsError,
+    isLoading: commentsLoading,
+  } = useQuery({
+    queryKey: ["comments", trainerId],
+    queryFn: () => fetchCommentsByTrainerId(trainerId),
+  });
+  useEffect(() => {
+    if (commentsData) {
+      console.log("Fetched comments in trainer dashboard:", commentsData);
+      setComments(commentsData);
+    }
+  }, [commentsData]);
 
   // Data fetching
   const {
@@ -209,15 +228,52 @@ const TrainerDashboard = () => {
     </>
   );
 
-  const MessagesComponent = () => (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <h2 className="text-2xl font-semibold mb-6">Messages</h2>
+  const MessagesComponent = ({ comments }) => (
+  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <h2 className="text-2xl font-semibold mb-6">Messages</h2>
+    {comments.length === 0 ? (
       <div className="text-center py-12 text-gray-500">
         <FiMessageSquare className="mx-auto text-4xl mb-4" />
         <p>Your messages will appear here</p>
       </div>
-    </div>
-  );
+    ) : (
+      <div className="space-y-4">
+        {comments.map((comment) => (
+          <div
+            key={comment.id}
+            className="p-4 bg-gray-50 rounded-lg shadow-md hover:shadow transition-shadow duration-200"
+          >
+            <div className="flex items-center gap-2 mb-1 text-sm text-gray-700">
+              <p className="text-gray-800 font-semibold">
+ 
+  {comment.senderType === "STUDENT" ? (
+    <>
+      <span className="text-green-600">From: </span>
+      {comment.studentFullName}
+    </>
+  ) : (
+    "Me"
+  )}
+</p>
+            </div>
+
+            <div className="flex items-start gap-2 text-gray-800">
+              <FiMessageSquare className="mt-1 text-blue-500" />
+              <p>{comment.comment}</p>
+            </div>
+
+            <div className="flex items-center gap-1 text-xs text-gray-400 mt-2">
+              <FiClock />
+              <span>
+                {new Date(comment.createdAt).toLocaleDateString()}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+);
 
   const ScheduleComponent = () => (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -232,7 +288,7 @@ const TrainerDashboard = () => {
   const components = {
     dashboard: <DashboardHome />,
     reports: <ReportComponent />,
-    messages: <MessagesComponent />,
+    messages: <MessagesComponent comments={comments} />,
     schedule: <ScheduleComponent />,
   };
 

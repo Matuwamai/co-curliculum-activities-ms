@@ -34,6 +34,7 @@ const StudentCommentsModal = ({
     createMutationComment.mutate({
       studentId: student.id,
       userId: userId,
+      senderType: user.role,
       activityId: activity.id,
       comment: comment,
     });

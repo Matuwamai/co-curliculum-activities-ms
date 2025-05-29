@@ -11,7 +11,6 @@ const fixedTime = [
   "2:00",
   "4:00 ",
   "6:00",
-  "8:00",
 ];
 
 const fixedTimeAmPm = fixedTime.map((timeStr) => {

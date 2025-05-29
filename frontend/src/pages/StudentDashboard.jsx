@@ -155,6 +155,7 @@ const StudentDashboard = () => {
       comment: text,
       studentId: user.student.id,
       activityId: activities[0].id,
+      senderType: user.role,
       userId: activities[0].trainerUser?.id,
       parentId: parentId || replyingToId,
     });
