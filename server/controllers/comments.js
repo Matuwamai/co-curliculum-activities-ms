@@ -2,7 +2,7 @@ import prisma from "../config/db.js";
 
 export const createComment = async (req, res) => {
   try {
-    const { activityId, userId, studentId, comment, parentId } = req.body;
+    const { activityId, userId, studentId, comment, parentId, senderType } = req.body;
     const trainer = await prisma.trainer.findUnique({
       where: { userId: userId },
       select: { id: true },
@@ -18,6 +18,7 @@ export const createComment = async (req, res) => {
         trainerId: trainer.id,
         parentId,
         comment,
+        senderType,
       },
     });
 
@@ -134,6 +135,46 @@ export const getTrainerByTrainerId = async (req, res) => {
     res.status(200).json({ fullName });
   } catch (error) {
     console.error("Error fetching trainer:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getCommentsByTrainerId = async (req, res) => {
+  try {
+    const { trainerId } = req.params;
+    const userId = parseInt(trainerId, 10);
+
+    const trainer = await prisma.trainer.findUnique({
+      where: { userId: userId },
+    });
+    if (!trainer) {
+      return res.status(404).json({ message: "Trainer not found" });
+    }
+
+    const rawComments = await prisma.comment.findMany({
+      where: { trainerId: trainer.id },
+      include: {
+        activity: true,
+        trainer: true,
+        student: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+    
+    if (rawComments.length === 0) {
+      return res.status(404).json({ message: "No comments found" });
+    }
+const comments = rawComments.map(comment => ({
+  ...comment,
+  studentFullName: comment.student?.user?.fullName || "Unknown Student",
+}));
+res.status(200).json(comments);
+
+  } catch (error) {
+    console.error("Error fetching comments by trainer ID:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
