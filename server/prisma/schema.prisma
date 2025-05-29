@@ -102,6 +102,7 @@ model Comment {
   parentId  Int?     // nullable for threading
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  senderType String? 
 
   student  Student?  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   activity Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
