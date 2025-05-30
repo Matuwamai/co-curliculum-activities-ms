@@ -106,6 +106,7 @@ export const fetchCommentsByStudentId = async (userId) => {
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log("Fetched comments in services:", data);
     return data;
   } catch (error) {
     console.log("Error fetching comments:", error);
@@ -115,3 +116,27 @@ export const fetchCommentsByStudentId = async (userId) => {
     throw new Error(errorMessage);
   }
 };
+
+export const fetchCommentsByTrainerId = async (trainerId) => {
+  console.log("Fetching comments for trainer ID:", trainerId);
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("No token found in localStorage");
+      return;
+    }
+    const { data } = await api.get(`comments/trainer/comments/${trainerId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log("Fetched comments by trainer ID:", data);
+    return data;
+  } catch (error) {
+    console.log("Error fetching comments:", error);
+    const errorMessage = error.response
+      ? error.response.data.message
+      : "An error occurred";
+    throw new Error(errorMessage);
+  }
+}
